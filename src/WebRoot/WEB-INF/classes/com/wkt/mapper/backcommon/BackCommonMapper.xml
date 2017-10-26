@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.backcommon.IBackCommonDao">
+	
+	<!-- 获取所有商会列表 -->
+	<select id="findAllShangHuiInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.SHID id,
+			t.SHNAME name
+		FROM
+			PRE_COMMON_SHANGHUI t
+		where t.`STATUS`=1
+		<if test="name !=null and name !=''">
+			and t.SHNAME like '%${name}%'
+		</if>
+		order by t.CREATEDATE asc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有商会列表信息总数 -->
+	<select id="findAllShangHuiInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			PRE_COMMON_SHANGHUI t
+		where t.status=1
+		<if test="name !=null and name !=''">
+			and t.SHNAME like '%${name}%'
+		</if>
+	</select>
+	
+	<!-- 获取所有行业信息列表 -->
+	<select id="findAllIndustryInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.ID id,
+			t.`NAME` name
+		FROM
+			PRE_COMMON_INDUSTRY t
+		where 1=1 
+		<if test="name !=null and name !=''">
+			and t.`NAME` like '%${name}%'
+		</if>
+		order by t.ID asc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有行业信息总数 -->
+	<select id="findAllIndustryInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			PRE_COMMON_INDUSTRY t
+		where 1=1
+		<if test="name !=null and name !=''">
+			and t.`NAME` like '%${name}%'
+		</if>
+	</select>
+	
+	<!-- 获取所有用户组信息列表 -->
+	<select id="findAllUserGroupInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.usergroupname name
+		FROM
+			yj_yy_usergroup t
+		where 1=1 
+		<if test="name !=null and name !=''">
+			and t.usergroupname like '%${name}%'
+		</if>
+		order by t.createtime desc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有用户组信息总数 -->
+	<select id="findAllUserGroupInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_yy_usergroup t
+		where 1=1
+		<if test="name !=null and name !=''">
+			and t.usergroupname like '%${name}%'
+		</if>
+	</select>
+	
+	<!-- 获取所有用户信息列表 -->
+	<select id="findAllUserInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.usid id,
+			t.usid,
+			t.usid as user_id,
+			t.realname name,
+			t.realname as user_name,
+			t.company,
+			t.company as user_company,
+			t.image,
+			t.weight,
+			t.user_v,
+			t.mobile,
+			t.logintype type,
+			ifnull(t.companywork,'') companywork,
+			t.position,
+			IFNULL((SELECT type FROM PRE_SHAPP_MEMBER_DETAIL WHERE USID=t.usid LIMIT 1),2) identity_type
+		FROM
+			PRE_AL_MEMBER t
+		where t.AVAILABLE = 0 
+		<if test="name !=null and name !=''">
+			and (t.realname like '%${name}%' or t.company like '%${name}%')
+		</if>
+		<if test="circleids !=null and circleids !=''">
+			and t.USID in (SELECT DISTINCT s.user_id FROM yj_circle_user s where s.circle_id in(${circleids}) and s.`status`=1)
+		</if>
+		<if test="is_v !=null and is_v !=''">
+			and t.weight>0
+		</if>
+		order by t.createdate desc 
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有用户信息总数 -->
+	<select id="findAllUserInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			PRE_AL_MEMBER t
+		where t.AVAILABLE =0 
+		<if test="name !=null and name !=''">
+			and (t.realname like '%${name}%' or t.company like '%${name}%')
+		</if>
+		<if test="circleids !=null and circleids !=''">
+			and t.USID in (SELECT DISTINCT s.user_id FROM yj_circle_user s where s.circle_id in('${circleids}') and s.`status`=1)
+		</if>
+		<if test="is_v !=null and is_v !=''">
+			and t.weight>0
+		</if>
+	</select>
+	
+	<!-- 查询文章关联列表-->
+	<select id="findAllArticleInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			yj_article_association t
+		where t.`status`=1 
+		  and t.state=1
+		<if test="name !=null and name !=''">
+			and t.title like '%${name}%'
+		</if>
+		<if test="objtype !=null and objtype !=0">
+			and t.obj_type=${objtype}
+		</if>
+		<if test="is_feed !=null and is_feed !=''">
+			and t.obj_type!=14
+		</if>
+		order by t.create_time desc 
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有文章信息总数 -->
+	<select id="findAllArticleInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_article_association t
+		where t.`status`=1
+		  and t.state=1
+		<if test="name !=null and name !=''">
+			and t.title like '%${name}%'
+		</if>
+		<if test="objtype !=null and objtype !=0">
+			and t.obj_type=${objtype}
+		</if>
+		<if test="is_feed !=null and is_feed !=''">
+			and t.obj_type!=14
+		</if>
+	</select>
+	
+	<!-- 获取所有文章信息总数 -->
+	<select id="getArticleInfo" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			t.id,
+			t.obj_id objid,
+			t.obj_type objtype,
+			t.title,
+			t.create_type createtype,
+			t.state,
+			t.`status` status
+		FROM
+			yj_article_association t
+		where t.id=${id}
+	</select>
+	
+	<!-- 获取所有商会职务总数 -->
+	<select id="findOccupationInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		select count(*)
+  		  from PRE_COMMON_OCCUPATION p,PRE_COMMON_SHANGHUI s 
+ 		 where p.SHANGHUIID=s.SHID
+   		   and s.`STATUS`=1
+   		   and p.`STATUS`=1
+   		   and p.ONAME like '%%'
+   		   and s.SHNAME like '%%'
+		<if test="oname !=null and oname !=''">
+			and p.ONAME like '%${oname}%'
+		</if>
+		<if test="shname !=null and shname !=''">
+			and s.SHNAME like '%${shname}%'
+		</if>
+	</select>
+	
+	<!-- 获取所有商会职务 -->
+	<select id="findOccupationLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	<!--select p.oid id,p.oname name,p.grade,p.shanghuiid,s.shname
+	 	select DISTINCT p.oname id,p.oname name,p.grade -->
+	 		select DISTINCT p.oname id,p.oname name
+  		  from PRE_COMMON_OCCUPATION p,PRE_COMMON_SHANGHUI s 
+ 		 where p.SHANGHUIID=s.SHID
+   		   and s.`STATUS`=1
+   		   and p.`STATUS`=1
+		<if test="name !=null and name !=''">
+			and p.ONAME like '%${name}%'
+		</if>
+		<if test="shname !=null and shname !=''">
+			and s.SHNAME like '%${shname}%'
+		</if>
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 专题详细查询 -->
+	<select id="getHotspotInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT *
+		FROM yj_hotspot t
+		where t.id=${id}
+	</select>
+	
+	<!-- 话题详细查询 -->
+	<select id="getTopicInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT *
+		FROM yj_topic t
+		where t.id=${id}
+	</select>
+	
+	<!-- 工商联新闻详细查询 -->
+	<select id="getGslArticleInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT *
+		FROM yj_gsl_article t
+		where t.id=${id}
+	</select>
+	
+	<!-- 商机详细查询 -->
+	<select id="getBusinessInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT *
+		FROM yj_business t
+		where t.id=${id}
+	</select>
+	
+	<!-- 商会咨询详细查询 -->
+	<select id="getInformationInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT *
+		FROM PRE_COMMON_INFORMATION t
+		where t.INID=${id}
+	</select>
+	
+	<!-- 根据用户查询商会及职务 -->
+	<select id="getSHUserIdentity" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT (SELECT SHNAME FROM PRE_COMMON_SHANGHUI WHERE SHID = psmd.SHID) shname,(SELECT ONAME FROM PRE_COMMON_OCCUPATION WHERE OID=psmd.OID) oname FROM PRE_SHAPP_MEMBER_DETAIL psmd WHERE USID = #{user_id}
+	</select>
+</mapper>

@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.article.IArticleDao">
+
+	<select id="findArticleInfoList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM yj_common_article t where 1=1
+		<if test="state!=null and state!=''">
+			and t.state in(${state})
+		</if> 
+		<if test="status!=null and status!=''">
+			and t.status=#{status}
+		</if>
+		<if test="title!=null and title!=''">
+			and t.title like '%${title}%'
+		</if>
+		<if test="is_short!=null and is_short!=''">
+			and t.is_short =#{is_short}
+		</if>
+		<if test="start_time!=null and start_time!=''">
+			and t.create_time >=#{start_time}
+		</if>
+		<if test="end_time!=null and end_time!=''">
+			<![CDATA[ and t.create_time <=#{end_time} ]]> 
+		</if>
+		<if test="start_update_time!=null and start_update_time!=''">
+			and t.update_time >=#{start_update_time}
+		</if>
+		<if test="end_update_time!=null and end_update_time!=''">
+			<![CDATA[ and t.update_time <=#{end_update_time} ]]> 
+		</if>
+		order by update_time desc,create_time desc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 查询江湖上列表总数 -->
+	<select id="findArticleInfCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*) FROM yj_common_article t where 1=1 
+		<if test="state!=null and state!=''">
+			and t.state in(${state})
+		</if> 
+		<if test="status!=null and status!=''">
+			and t.status=#{status}
+		</if>
+		<if test="title!=null and title!=''">
+			and t.title like '%${title}%'
+		</if>
+		<if test="is_short!=null and is_short!=''">
+			and t.is_short =#{is_short}
+		</if>
+		<if test="start_time!=null and start_time!=''">
+			and t.create_time >=#{start_time}
+		</if>
+		<if test="end_time!=null and end_time!=''">
+			<![CDATA[ and t.create_time <=#{end_time} ]]> 
+		</if>
+		<if test="start_update_time!=null and start_update_time!=''">
+			and t.update_time >=#{start_update_time}
+		</if>
+		<if test="end_update_time!=null and end_update_time!=''">
+			<![CDATA[ and t.update_time <=#{end_update_time} ]]> 
+		</if>
+	</select>
+	
+	<!-- 通过ID查询对应江湖事 -->
+	<select id="getArticleById" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM yj_common_article where id=#{id}
+	</select>
+	
+	<!-- 修改式删除 -->	
+	<update id="deleteArticleById" parameterType="java.util.HashMap">
+		update yj_common_article set status=#{status}
+		<if test="user_name!=null and user_name!=''">
+			,update_name=#{user_name}
+		</if>
+		<if test="user_id!=null and user_id!=''">
+			,update_id=#{user_id}
+		</if>
+		<if test="update_time!=null and update_time!=''">
+			,update_time=#{update_time}
+		</if>
+		where id=#{id}
+	</update>
+	
+	<!-- 修改江湖事 -->
+	<update id="updateArticleById" parameterType="java.util.HashMap">
+		update yj_common_article set update_time=#{update_time},update_type=2
+		<if test="title!=null and title!=''">
+			,title=#{title}
+		</if>
+		<if test="summary!=null">
+			,summary=#{summary}
+		</if>
+		<if test="content!=null and content!=''">
+			,content=#{content}
+		</if>
+		<if test="image!=null">
+			,image=#{image}
+		</if>
+		<if test="state!=null and state!=''">
+			,state=#{state}
+		</if>
+		<if test="status">
+			,status=#{status}
+		</if>
+		<if test="show_times_count!=null and show_times_count!=''">
+			,show_times_count=#{show_times_count}
+		</if>
+		<if test="show_people_count!=null and show_people_count!=''">
+			,show_people_count = #{show_people_count}
+		</if>
+		<if test="visit_times_count!=null and visit_times_count!=''">
+			,visit_times_count=#{visit_times_count}
+		</if>
+		<if test="visit_people_count!=null and visit_people_count!=''">
+			,visit_people_count=#{visit_people_count}
+		</if>
+		<if test="zan_count!=null and zan_count!=''">
+			,zan_count=#{zan_count}
+		</if>
+		<if test="favorite_count!=null and favorite_count!=''">
+			,favorite_count=#{favorite_count}
+		</if>
+		<if test="share_count!=null and share_count!=''">
+			,share_count=#{share_count}
+		</if>
+		<if test="comment_count!=null and comment_count!=''">
+			,comment_count=#{comment_count}
+		</if>
+		<if test="view_times_count_all!=null and view_times_count_all!=''">
+			,view_times_count_all=#{view_times_count_all}
+		</if>
+		<if test="view_people_count_all!=null and view_people_count_all!=''">
+			,view_people_count_all=#{view_people_count_all}
+		</if>
+		<if test="zan_count_all!=null and zan_count_all!=''">
+			,zan_count_all=#{zan_count_all}
+		</if>
+		<if test="favorite_count_all!=null and favorite_count_all!=''">
+			,favorite_count_all=#{favorite_count_all}
+		</if>
+		<if test="share_count_all!=null and share_count_all!=''">
+			,share_count_all=#{share_count_all}
+		</if>
+		<if test="comment_count_all!=null and comment_count_all!=''">
+			,comment_count_all=#{comment_count_all}
+		</if>
+		<if test="audit_user_id !=null and audit_user_id !=''">
+			,audit_user_id=#{audit_user_id}
+		</if>
+		<if test="audit_user_name !=null and audit_user_name !=''">
+			,audit_user_name=#{audit_user_name}
+		</if>
+		<if test="audit_time !=null and audit_time !=''">
+			,audit_time=#{audit_time}
+		</if>
+		<if test="user_name!=null and user_name!=''">
+			,update_name=#{user_name}
+		</if>
+		<if test="user_id!=null and user_id!=''">
+			,update_id=#{user_id}
+		</if>
+		<if test="is_short!=null and is_short!=''">
+			,is_short=#{is_short}
+		</if>
+		where id=#{id}
+	</update>
+	
+	<!-- 审核江湖事 -->
+	<update id="updateArticleState" parameterType="java.util.HashMap">
+	  update yj_common_article 
+	  	 set audit_time=#{audit_time},
+	  	 	update_time=#{update_time},
+	  	 	update_type=2
+	  	 <if test="user_name!=null and user_name!=''">
+			,update_name=#{user_name}
+		</if>
+		<if test="user_id!=null and user_id!=''">
+			,update_id=#{user_id}
+		</if>
+		<if test="title!=null and title!=''">
+			,title=#{title}
+		</if>
+		<if test="summary!=null">
+			,summary=#{summary}
+		</if>
+		<if test="content!=null and content!=''">
+			,content=#{content}
+		</if>
+		<if test="image!=null">
+			,image=#{image}
+		</if>
+		<if test="state!=null and state!=''">
+			,state=#{state}
+		</if>
+		<if test="status">
+			,status=#{status}
+		</if>
+		<if test="author_id!=null and author_id!=''">
+			,author_id=#{author_id}
+		</if>
+		<if test="author_name!=null and author_name!=''">
+			,author_name=#{author_name}
+		</if>
+		<if test="show_times_count!=null and show_times_count!=''">
+			,show_times_count=#{show_times_count}
+		</if>
+		<if test="show_people_count!=null and show_people_count!=''">
+			,show_people_count = #{show_people_count}
+		</if>
+		<if test="visit_times_count!=null and visit_times_count!=''">
+			,visit_times_count=#{visit_times_count}
+		</if>
+		<if test="visit_people_count!=null and visit_people_count!=''">
+			,visit_people_count=#{visit_people_count}
+		</if>
+		<if test="zan_count!=null and zan_count!=''">
+			,zan_count=#{zan_count}
+		</if>
+		<if test="favorite_count!=null and favorite_count!=''">
+			,favorite_count=#{favorite_count}
+		</if>
+		<if test="share_count!=null and share_count!=''">
+			,share_count=#{share_count}
+		</if>
+		<if test="comment_count!=null and comment_count!=''">
+			,comment_count=#{comment_count}
+		</if>
+		<if test="view_times_count_all!=null and view_times_count_all!=''">
+			,view_times_count_all=#{view_times_count_all}
+		</if>
+		<if test="view_people_count_all!=null and view_people_count_all!=''">
+			,view_people_count_all=#{view_people_count_all}
+		</if>
+		<if test="zan_count_all!=null and zan_count_all!=''">
+			,zan_count_all=#{zan_count_all}
+		</if>
+		<if test="favorite_count_all!=null and favorite_count_all!=''">
+			,favorite_count_all=#{favorite_count_all}
+		</if>
+		<if test="share_count_all!=null and share_count_all!=''">
+			,share_count_all=#{share_count_all}
+		</if>
+		<if test="comment_count_all!=null and comment_count_all!=''">
+			,comment_count_all=#{comment_count_all}
+		</if>
+		<if test="is_short!=null and is_short!=''">
+			,is_short=#{is_short}
+		</if>
+		<if test="user_name!=null and user_name!=''">
+			,audit_user_name=#{user_name}
+		</if>
+		<if test="user_id!=null and user_id!=''">
+			,audit_user_id=#{user_id}
+		</if>
+		<if test="audit_opinion!=null and audit_opinion!=''">
+			,audit_opinion=#{audit_opinion}
+		</if>
+	   where id=#{id}
+	</update>
+	
+	<!-- 修改江湖事状态 -->
+	<update id="updateArticleStatus" parameterType="java.util.HashMap">
+	  update yj_common_article set status =#{status} where id=#{id}
+	</update>
+	
+	<!-- 插入江湖事数据 -->
+	<insert id="insertArticle" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="id">
+	INSERT INTO yj_common_article (summary,content,image,author_id,author_name,create_time,status,state,is_short,update_time
+		<if test="title!=null and title!=''">
+			,title
+		</if>)
+	VALUE(#{summary},#{content},#{image},#{user_id},#{user_name},#{create_time},#{status},#{state},#{is_short},#{create_time}
+		<if test="title!=null and title!=''">
+			,#{title}
+		</if>)
+	</insert>
+	
+	<!-- 通过ID查询江湖事关联 -->
+	<select id="getArticleRelated" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM yj_common_article_url where article_id=#{id}
+	</select>
+	
+	<!-- 插入江湖事相关数据 -->
+	<insert id="insertArticleRelated" parameterType="java.util.HashMap">
+	INSERT INTO yj_common_article_url (article_id
+		<if test="related_obj_id!=null and orelated_obj_id!=''">
+			,obj_id
+		</if>
+		<if test="related_title!=null and related_title!=''">
+			,article_title
+		</if>
+		<if test="related_obj_type!=null and related_obj_type!=''">
+			,obj_type
+		</if>
+		<if test="related_url!=null and related_url!=''">
+			,url
+		</if>
+		<if test="related_show_title!=null and related_show_title!=''">
+			,show_title
+		</if>
+		<if test="related_display_order!=null and related_display_order!=''">
+			,display_order
+		</if>
+		<if test="create_time!=null and create_time!=''">
+			,create_time
+		</if>)
+	VALUE(#{article_id}
+		<if test="related_obj_id!=null and related_obj_id!=''">
+			,#{related_obj_id}
+		</if>
+		<if test="related_title!=null and related_title!=''">
+			,#{related_title}
+		</if>
+		<if test="related_obj_type!=null and related_obj_type!=''">
+			,#{related_obj_type}
+		</if>
+		<if test="related_url!=null and related_url!=''">
+			,#{related_url}
+		</if>
+		<if test="related_show_title!=null and related_show_title!=''">
+			,#{related_show_title}
+		</if>
+		<if test="related_display_order!=null and related_display_order!=''">
+			,#{related_display_order}
+		</if>
+		<if test="create_time!=null and create_time!=''">
+			,#{create_time}
+		</if>)
+	</insert>
+	
+	<!-- 删除全部江湖事相关 -->
+	<delete id="deleteArticleRelated" parameterType="java.util.HashMap">
+		delete from yj_common_article_url where article_id=#{id}
+	</delete>
+	
+	<!-- 获取自增ID -->
+	<select id="getArticleId" parameterType="java.util.HashMap" resultType="Integer">
+		select @@identity
+	</select>
+	
+	<!-- 文章统计列表 -->
+	<select id="getArticleStatisticsList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from (
+		select t.* from (
+			SELECT ym.id obj_id, 1 obj_type,'早茶' obj_type_name,ym.title obj_title,ym.create_time,ym.show_people_count,ym.show_times_count,ym.visit_people_count,ym.visit_times_count,ym.zan_count,ym.favorite_count,ym.share_count,ym.comment_count,ym.view_people_count_all,ym.view_times_count_all,ym.wx_visit_times_count,ym.wx_visit_people_count,ym.zan_count_all,ym.share_count_all,ym.favorite_count_all,ym.comment_count_all FROM yj_morning ym where 1=1 and ym.state = 1
+			union all
+			SELECT ys.id obj_id, 2 obj_type,'秘闻' obj_type_name,ys.title obj_title,ys.create_time,ys.show_people_count,ys.show_times_count,ys.visit_people_count,ys.visit_times_count,ys.zan_count,ys.favorite_count,ys.share_count,ys.comment_count,ys.view_people_count_all,ys.view_times_count_all,ys.wx_visit_times_count,ys.wx_visit_people_count,ys.zan_count_all,ys.share_count_all,ys.favorite_count_all,ys.comment_count_all FROM yj_secret ys where 1=1 and ys.state = 1
+			union all
+			select ye.id obj_id, 8 obj_type,'榜样' obj_type_name,ye.title obj_title,ye.create_time,ye.show_people_count,ye.show_times_count,ye.visit_people_count,ye.visit_times_count,ye.zan_count,ye.favorite_count,ye.share_count,ye.comment_count,ye.view_people_count_all,ye.view_times_count_all,ye.wx_visit_times_count,ye.wx_visit_people_count,ye.zan_count_all,ye.share_count_all,ye.favorite_count_all,ye.comment_count_all from yj_example ye where 1=1 and ye.state = 1
+			union all
+			SELECT yh.id obj_id, 6 obj_type,'专题' obj_type_name,yh.title obj_title,yh.create_time,yh.show_people_count,yh.show_times_count,yh.visit_people_count,yh.visit_times_count,yh.zan_count,yh.favorite_count,yh.share_count,yh.comment_count,yh.view_people_count_all,yh.view_times_count_all,yh.wx_visit_times_count,yh.wx_visit_people_count,yh.zan_count_all,yh.share_count_all,yh.favorite_count_all,yh.comment_count_all FROM yj_hotspot yh where 1=1 and yh.state = 1
+			union all
+			select ya.id obj_id, 4 obj_type,'活动' obj_type_name,ya.title obj_title,ya.create_time,ya.show_people_count,ya.show_times_count,ya.visit_people_count,ya.visit_times_count,ya.zan_count,ya.favorite_count,ya.share_count,ya.comment_count,ya.view_people_count_all,ya.view_times_count_all,ya.wx_visit_times_count,ya.wx_visit_people_count,ya.zan_count_all,ya.share_count_all,ya.favorite_count_all,ya.comment_count_all from yj_activity ya where 1=1 and ya.state = 1
+			union all
+			select yt.id obj_id, 5 obj_type,'话题' obj_type_name,yt.title obj_title,yt.create_time,yt.show_people_count,yt.show_times_count,yt.visit_people_count,yt.visit_times_count,yt.zan_count,yt.favorite_count,yt.share_count,yt.comment_count,yt.view_people_count_all,yt.view_times_count_all,yt.wx_visit_times_count,yt.wx_visit_people_count,yt.zan_count_all,yt.share_count_all,yt.favorite_count_all,yt.comment_count_all from yj_topic yt where 1=1 and yt.state = 1
+			union all
+			select yc.id obj_id, 19 obj_type,'帖子' obj_type_name,yc.title obj_title,yc.create_time,yc.show_people_count,yc.show_times_count,yc.visit_people_count,yc.visit_times_count,yc.zan_count,yc.favorite_count,yc.share_count,yc.comment_count,yc.view_people_count_all,yc.view_times_count_all,yc.wx_visit_times_count,yc.wx_visit_people_count,yc.zan_count_all,yc.share_count_all,yc.favorite_count_all,yc.comment_count_all from yj_circle_share yc where 1=1 and yc.state = 1
+			union all
+			select yq.id obj_id, 18 obj_type,'求帮帮' obj_type_name,yq.title obj_title,yq.create_time,yq.show_people_count,yq.show_times_count,yq.visit_people_count,yq.visit_times_count,yq.zan_count,yq.favorite_count,yq.share_count,yq.comment_count,yq.view_people_count_all,yq.view_times_count_all,yq.wx_visit_times_count,yq.wx_visit_people_count,yq.zan_count_all,yq.share_count_all,yq.favorite_count_all,yq.comment_count_all from yj_circle_question yq where 1=1 and yq.`status` = 1 
+			union all
+			select yb.id obj_id, 10 obj_type,'商机' obj_type_name,yb.title obj_title,yb.create_time,yb.show_people_count,yb.show_times_count,yb.visit_people_count,yb.visit_times_count,yb.zan_count,yb.favorite_count,yb.share_count,yb.comment_count,yb.view_people_count_all,yb.view_times_count_all,yb.wx_visit_times_count,yb.wx_visit_people_count,yb.zan_count_all,yb.share_count_all,yb.favorite_count_all,yb.comment_count_all from yj_business yb where 1=1 and yb.state = 1 
+			union all
+			select yg.id obj_id, 9 obj_type,'工商联新闻' obj_type_name,yg.title obj_title,yg.create_time,yg.show_people_count,yg.show_times_count,yg.visit_people_count,yg.visit_times_count,yg.zan_count,yg.favorite_count,yg.share_count,yg.comment_count,yg.view_people_count_all,yg.view_times_count_all,yg.wx_visit_times_count,yg.wx_visit_people_count,yg.zan_count_all,yg.share_count_all,yg.favorite_count_all,yg.comment_count_all from yj_gsl_article yg where 1=1 and yg.state = 1 
+			union all
+			SELECT yy.id obj_id, 7 obj_type,'江湖事' obj_type_name,yy.title obj_title,yy.create_time,yy.show_people_count,yy.show_times_count,yy.visit_people_count,yy.visit_times_count,yy.zan_count,yy.favorite_count,yy.share_count,yy.comment_count,yy.view_people_count_all,yy.view_times_count_all,yy.wx_visit_times_count,yy.wx_visit_people_count,yy.zan_count_all,yy.share_count_all,yy.favorite_count_all,yy.comment_count_all FROM yj_common_article yy where 1=1 and yy.state = 1 
+			union all
+			select pc.INID obj_id, 13 obj_type,'商会资讯' obj_type_name,pc.TITLE obj_title,UNIX_TIMESTAMP(pc.RELEASETIME) create_time,pc.show_people_count,pc.show_times_count,pc.visit_people_count,pc.visit_times_count,pc.zan_count,pc.favorite_count,pc.share_count,pc.comment_count,pc.view_people_count_all,pc.view_times_count_all,pc.wx_visit_times_count,pc.wx_visit_people_count,pc.zan_count_all,pc.share_count_all,pc.favorite_count_all,pc.comment_count_all from PRE_COMMON_INFORMATION pc where 1=1 
+			union all
+			select n.NID obj_id,14 obj_type,'商会通知' obj_type_name,n.TITLE obj_title,UNIX_TIMESTAMP(n.PUBLISHTIME) create_time,n.show_people_count,n.show_times_count,n.visit_people_count,n.visit_times_count,n.zan_count,n.favorite_count,n.share_count,n.comment_count,n.view_people_count_all,n.view_times_count_all,n.wx_visit_times_count,n.wx_visit_people_count,n.zan_count_all,n.share_count_all,n.favorite_count_all,n.comment_count_all  from PRE_COMMON_NOTICE n where 1=1 
+			) t 
+			
+		where 1=1 
+		<if test="obj_type != null and obj_type != ''">
+			and t.obj_type = #{obj_type}
+		</if>
+		<if test = "start_create_time != null and start_create_time != ''">
+			and t.create_time >= #{start_create_time}
+		</if>
+		<if test = "end_create_time != null and end_create_time != ''">
+			<![CDATA[ and t.create_time <=#{end_create_time} ]]>
+		</if>
+		<if test = "keywords != null and keywords != ''">
+			and t.obj_title like '%${keywords}%'
+		</if>
+		order by t.create_time desc
+		
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+		) b <if test="sort !=null and sort != ''">
+				order by ${sort} ${order}
+			</if>
+	</select>
+	
+	<!-- 文章统计列表数量 -->
+	<select id="getArticleStatisticsListCount" parameterType="java.util.HashMap" resultType="Integer">
+		select count(*) from (
+			SELECT ym.id obj_id, 1 obj_type,'早茶' obj_type_name,ym.title obj_title,ym.create_time,ym.show_people_count,ym.show_times_count,ym.visit_people_count,ym.visit_times_count,ym.zan_count,ym.favorite_count,ym.share_count,ym.comment_count,ym.view_people_count_all,ym.view_times_count_all,ym.zan_count_all,ym.share_count_all,ym.favorite_count_all,ym.comment_count_all FROM yj_morning ym where 1=1 and ym.state = 1
+			union all
+			SELECT ys.id obj_id, 2 obj_type,'秘闻' obj_type_name,ys.title obj_title,ys.create_time,ys.show_people_count,ys.show_times_count,ys.visit_people_count,ys.visit_times_count,ys.zan_count,ys.favorite_count,ys.share_count,ys.comment_count,ys.view_people_count_all,ys.view_times_count_all,ys.zan_count_all,ys.share_count_all,ys.favorite_count_all,ys.comment_count_all FROM yj_secret ys where 1=1 and ys.state = 1
+			union all
+			select ye.id obj_id, 8 obj_type,'榜样' obj_type_name,ye.title obj_title,ye.create_time,ye.show_people_count,ye.show_times_count,ye.visit_people_count,ye.visit_times_count,ye.zan_count,ye.favorite_count,ye.share_count,ye.comment_count,ye.view_people_count_all,ye.view_times_count_all,ye.zan_count_all,ye.share_count_all,ye.favorite_count_all,ye.comment_count_all from yj_example ye where 1=1 and ye.state = 1
+			union all
+			SELECT yh.id obj_id, 6 obj_type,'专题' obj_type_name,yh.title obj_title,yh.create_time,yh.show_people_count,yh.show_times_count,yh.visit_people_count,yh.visit_times_count,yh.zan_count,yh.favorite_count,yh.share_count,yh.comment_count,yh.view_people_count_all,yh.view_times_count_all,yh.zan_count_all,yh.share_count_all,yh.favorite_count_all,yh.comment_count_all FROM yj_hotspot yh where 1=1 and yh.state = 1
+			union all
+			select ya.id obj_id, 4 obj_type,'活动' obj_type_name,ya.title obj_title,ya.create_time,ya.show_people_count,ya.show_times_count,ya.visit_people_count,ya.visit_times_count,ya.zan_count,ya.favorite_count,ya.share_count,ya.comment_count,ya.view_people_count_all,ya.view_times_count_all,ya.zan_count_all,ya.share_count_all,ya.favorite_count_all,ya.comment_count_all from yj_activity ya where 1=1 and ya.state = 1
+			union all
+			select yt.id obj_id, 5 obj_type,'话题' obj_type_name,yt.title obj_title,yt.create_time,yt.show_people_count,yt.show_times_count,yt.visit_people_count,yt.visit_times_count,yt.zan_count,yt.favorite_count,yt.share_count,yt.comment_count,yt.view_people_count_all,yt.view_times_count_all,yt.zan_count_all,yt.share_count_all,yt.favorite_count_all,yt.comment_count_all from yj_topic yt where 1=1 and yt.state = 1
+			union all
+			select yc.id obj_id, 19 obj_type,'帖子' obj_type_name,yc.title obj_title,yc.create_time,yc.show_people_count,yc.show_times_count,yc.visit_people_count,yc.visit_times_count,yc.zan_count,yc.favorite_count,yc.share_count,yc.comment_count,yc.view_people_count_all,yc.view_times_count_all,yc.zan_count_all,yc.share_count_all,yc.favorite_count_all,yc.comment_count_all from yj_circle_share yc where 1=1 and yc.state = 1
+			union all
+			select yq.id obj_id, 18 obj_type,'求帮帮' obj_type_name,yq.title obj_title,yq.create_time,yq.show_people_count,yq.show_times_count,yq.visit_people_count,yq.visit_times_count,yq.zan_count,yq.favorite_count,yq.share_count,yq.comment_count,yq.view_people_count_all,yq.view_times_count_all,yq.zan_count_all,yq.share_count_all,yq.favorite_count_all,yq.comment_count_all from yj_circle_question yq where 1=1 and yq.`status` = 1 
+			union all
+			select yb.id obj_id, 10 obj_type,'商机' obj_type_name,yb.title obj_title,yb.create_time,yb.show_people_count,yb.show_times_count,yb.visit_people_count,yb.visit_times_count,yb.zan_count,yb.favorite_count,yb.share_count,yb.comment_count,yb.view_people_count_all,yb.view_times_count_all,yb.zan_count_all,yb.share_count_all,yb.favorite_count_all,yb.comment_count_all from yj_business yb where 1=1 and yb.state = 1 
+			union all
+			select yg.id obj_id, 9 obj_type,'工商联新闻' obj_type_name,yg.title obj_title,yg.create_time,yg.show_people_count,yg.show_times_count,yg.visit_people_count,yg.visit_times_count,yg.zan_count,yg.favorite_count,yg.share_count,yg.comment_count,yg.view_people_count_all,yg.view_times_count_all,yg.zan_count_all,yg.share_count_all,yg.favorite_count_all,yg.comment_count_all from yj_gsl_article yg where 1=1 and yg.state = 1 
+			union all
+			SELECT yy.id obj_id, 7 obj_type,'江湖事' obj_type_name,yy.title obj_title,yy.create_time,yy.show_people_count,yy.show_times_count,yy.visit_people_count,yy.visit_times_count,yy.zan_count,yy.favorite_count,yy.share_count,yy.comment_count,yy.view_people_count_all,yy.view_times_count_all,yy.zan_count_all,yy.share_count_all,yy.favorite_count_all,yy.comment_count_all FROM yj_common_article yy where 1=1 and yy.state = 1 
+			union all
+			select pc.INID obj_id, 13 obj_type,'商会资讯' obj_type_name,pc.TITLE obj_title,UNIX_TIMESTAMP(pc.RELEASETIME) create_time,pc.show_people_count,pc.show_times_count,pc.visit_people_count,pc.visit_times_count,pc.zan_count,pc.favorite_count,pc.share_count,pc.comment_count,pc.view_people_count_all,pc.view_times_count_all,pc.zan_count_all,pc.share_count_all,pc.favorite_count_all,pc.comment_count_all from PRE_COMMON_INFORMATION pc where 1=1 
+			union all
+			select n.NID obj_id,14 obj_type,'商会通知' obj_type_name,n.TITLE obj_title,UNIX_TIMESTAMP(n.PUBLISHTIME) create_time,n.show_people_count,n.show_times_count,n.visit_people_count,n.visit_times_count,n.zan_count,n.favorite_count,n.share_count,n.comment_count,n.view_people_count_all,n.view_times_count_all,n.zan_count_all,n.share_count_all,n.favorite_count_all,n.comment_count_all  from PRE_COMMON_NOTICE n where 1=1 
+			) t 
+			
+		where 1=1 
+		<if test="obj_type != null and obj_type != ''">
+			and t.obj_type = #{obj_type}
+		</if>
+		<if test = "start_create_time != null and start_create_time != ''">
+			and t.create_time >= #{start_create_time}
+		</if>
+		<if test = "end_create_time != null and end_create_time != ''">
+			<![CDATA[ and t.create_time <=#{end_create_time} ]]>
+		</if>
+		<if test = "keywords != null and keywords != ''">
+			and t.obj_title like '%${keywords}%'
+		</if>
+	</select>
+	
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.weights.IWeightsDao">
+	
+	<!-- 获取所有用户权重信息列表 -->
+	<select id="findAllWeightsInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.weightsname,
+			t.weightsnum,
+			t.`status` status,
+			t.createtime
+		FROM
+			yj_yy_weights t
+		where t.status=1 
+		<if test="weightsname !=null and weightsname !=''">
+			and t.weightsname like '%${weightsname}%'
+		</if>
+		order by t.weightsnum asc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有用户权重信息总数 -->
+	<select id="findAllWeightsInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_yy_weights t
+		where  t.status=1 
+		<if test="weightsname !=null and weightsname !=''">
+			and t.weightsname like '%${weightsname}%'
+		</if>
+	</select>
+	
+	<!-- 根据用户权重ID获取用户权重信息 -->
+	<select id="getWeightsInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.weightsname,
+			t.weightsnum,
+			t.`status` status,
+			t.createtime
+		FROM
+			yj_yy_weights t
+		where t.id = #{id}
+	</select>
+	
+	<!-- 新增用户权重信息 -->
+	<insert id="addWeightsInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+		INSERT INTO yj_yy_weights (
+			weightsname,
+			weightsnum,
+			createtime,
+			status
+		) values (
+			#{weightsname},#{weightsnum},now(),1
+		)
+	</insert>
+	
+	<!-- 修改用户权重信息 -->
+	<update id="updateWeightsInfo" parameterType="java.util.HashMap">
+		update yj_yy_weights set weightsname = #{weightsname},weightsnum = #{weightsnum}
+		where id = #{id}
+	</update>
+	
+	<!-- 删除用户权重信息 -->
+	<delete id="delWeightsInfo" parameterType="java.util.HashMap">
+		update yj_yy_weights set status = 2
+		where id = #{id}
+	</delete>
+	
+	
+	
+	
+	
+	<select id="findAList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		
+	</select>
+	<insert id ="insertBatch" parameterType="List" > 
+	   INSERT INTO yj_place_tree (
+			ID,
+			`Name`,
+			ParentId,
+			ShortName,
+			LevelType,
+			MergerName,
+			lng,
+			Lat,
+			Pinyin
+		)
+	    values 
+	    <foreach collection ="list" item ="item" index ="index" separator =","> 
+	       ( #{item.ID},#{item.Name},#{item.ParentId},#{item.ShortName},
+	       #{item.LevelType},#{item.MergerName},#{item.lng},#{item.Lat},#{item.Pinyin} ) 
+	    </foreach > 
+	</insert >
+</mapper>

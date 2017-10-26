@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.anonymous.IAnonymousDao">
+	
+	<!-- 获取所有匿名用户信息列表 -->
+	<select id="findAllAnonymousInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.`name` name,
+			t.type,
+			t.createtime,
+			d.name anonymousname
+		FROM
+			yj_common_anonymous t,yj_common_dict d
+		where d.code = t.type
+		  and d.type=8
+		<if test="name !=null and name !=''">
+			and t.`name` like '%${name}%'
+		</if>
+		<if test="type !=null and type !=''">
+			and t.type=#{type}
+		</if>
+		order by t.createtime desc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有匿名名称信息总数 -->
+	<select id="findAllAnonymousInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_common_anonymous t,yj_common_dict d
+		where d.code = t.type
+		  and d.type=8
+		<if test="name !=null and name !=''">
+			and t.`name` like '%${name}%'
+		</if>
+		<if test="type !=null and type !=''">
+			and t.type=#{type}
+		</if>
+	</select>
+	
+	<!-- 获取所有字典匿名名称信息列表 -->
+	<select id="findAllAnonymousDictInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			yj_common_dict t
+		where 1=1 
+		  and t.type=8
+		order by t.code desc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有字典匿名用户信息总数 -->
+	<select id="findAllAnonymousDictInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_common_dict t
+		where 1=1
+		  and t.type=8
+	</select>
+	
+	<!-- 根据匿名名称ID获取匿名名称信息 -->
+	<select id="getAnonymousInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.`name` name,
+			t.type,
+			t.createtime 
+		FROM
+			yj_common_anonymous t
+		where t.id = #{id}
+	</select>
+	
+	<!-- 新增匿名名称信息 -->
+	<insert id="addAnonymousInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+		INSERT INTO yj_common_anonymous (
+			name,
+			type,
+			createtime
+		) values (
+			#{name},#{type},#{create_time}
+		)
+	</insert>
+	
+	<!-- 新增字典匿名名称 -->
+	<insert id="addAnonymousDict" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+		INSERT INTO yj_common_dict (
+			code,
+			name,
+			type,
+			comment
+		) values (
+			#{code},#{name},8,'匿名名称'
+		)
+	</insert>
+	
+	<!-- 获取code值 -->
+	<select  id="getDictCodeId"  resultType="Integer">
+		select IFNULL(max(t.`code`),0) from yj_common_dict t where t.type=8
+	</select>
+	
+	<!-- 获取字典自增ID -->
+	<select  id="getDictId"  resultType="Integer">
+		select @@identity
+	</select>
+	
+	<!-- 获取字典值 -->
+	<select  id="getAnonymousDictById" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from yj_common_dict t where t.id=#{id}
+	</select>
+	
+	<!-- 通过type删除匿名名称 -->
+	<delete id="delAnonymousByType" parameterType="java.util.HashMap">
+		delete from  yj_common_anonymous where type = #{type}
+	</delete>
+	
+	<!-- 修改字典匿名名称信息 -->
+	<update id="updateAnonymousDictInfo" parameterType="java.util.HashMap">
+		update yj_common_dict set name = #{name}
+		where id = #{id}
+	</update>
+	
+	
+	<!-- 修改匿名名称信息 -->
+	<update id="updateAnonymousInfo" parameterType="java.util.HashMap">
+		update yj_common_anonymous set name = #{name},type = #{type}
+		where id = #{id}
+	</update>
+	
+	<!-- 删除匿名名称信息 -->
+	<delete id="delAnonymousInfo" parameterType="java.util.HashMap">
+		delete from  yj_common_anonymous where id = #{id}
+	</delete>
+	
+	<!-- 删除匿名名称信息 -->
+	<delete id="delAnonymousDictInfo" parameterType="java.util.HashMap">
+		delete from  yj_common_dict where id = #{id}
+	</delete>
+</mapper>

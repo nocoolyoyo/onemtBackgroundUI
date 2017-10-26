@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.legalize.ILegalizeDao">
+	
+	<!-- 获取所有认证方式信息列表 -->
+	<select id="findAllLegalizeInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.`code` code,
+			t.`name` name,
+			t.type,
+			t.`comment` comment
+		FROM
+			yj_common_dict t
+		where t.type=7
+		order by code asc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有认证方式信息总数 -->
+	<select id="findAllLegalizeInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_common_dict t
+		where t.type=7
+	</select>
+	
+	<!-- 根据认证方式ID获取认证方式信息 -->
+	<select id="getLegalizeInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.`code` code,
+			t.`name` name,
+			t.type,
+			t.`comment` comment
+		FROM
+			yj_common_dict t
+		where t.id = #{id}
+	</select>
+	
+	<!-- 获取字典中认证方式code的最大值 -->
+	<select id="findMaxCode" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			max(t.`code`)
+		FROM
+			yj_common_dict t
+		where t.type=7
+	</select>
+	
+	<!-- 获取自增ID -->
+	<select id="getInsertId" parameterType="java.util.HashMap" resultType="Integer">
+		select @@identity
+	</select>
+	
+	<!-- 新增认证方式信息 -->
+	<insert id="addLegalizeInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+		INSERT INTO yj_common_dict (
+			code,
+			name,
+			type,
+			comment
+		) values (
+			#{code},#{name},7,#{comment}
+		)
+	</insert>
+	
+	<!-- 修改认证方式信息 -->
+	<update id="updateLegalizeInfo" parameterType="java.util.HashMap">
+		update yj_common_dict set name = #{name},comment = #{comment}
+		where id = #{id}
+	</update>
+	
+	<!-- 删除认证方式信息 -->
+	<delete id="delLegalizeInfo" parameterType="java.util.HashMap">
+		delete from yj_common_dict where id = #{id}
+	</delete>
+</mapper>

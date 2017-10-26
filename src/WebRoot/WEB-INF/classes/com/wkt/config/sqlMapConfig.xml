@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd"> 
+<configuration> 
+	<mappers>
+		<mapper resource="com/wkt/mapper/login/LoginMapper.xml"/><!-- 登录 -->
+		<mapper resource="com/wkt/mapper/user/UserManagerMapper.xml"/><!-- 用户管理 -->
+		<mapper resource="com/wkt/mapper/common/CommonMapper.xml"/>
+		<mapper resource="com/wkt/mapper/circle/CircleMapper.xml"/><!-- 圈子管理 -->
+		<mapper resource="com/wkt/mapper/morning/MoringMapper.xml"/> <!-- 早茶 -->
+		<mapper resource="com/wkt/mapper/jdw/JdwMapper.xml"/><!-- 焦点位 -->
+		<mapper resource="com/wkt/mapper/settled/SHsettledMapper.xml"/><!-- 商会入驻 -->
+		<mapper resource="com/wkt/mapper/manager/ManagerMapper.xml"/><!-- 系统用户管理 -->
+		<mapper resource="com/wkt/mapper/role/RoleMapper.xml"/><!-- 系统角色管理 -->
+		<mapper resource="com/wkt/mapper/circlerole/CircleRoleMapper.xml"/><!-- 圈角色管理 -->
+		<mapper resource="com/wkt/mapper/legalize/LegalizeMapper.xml"/><!-- 认证方式管理 -->
+		<mapper resource="com/wkt/mapper/industry/IndustryMapper.xml"/><!-- 行业管理 -->
+		<mapper resource="com/wkt/mapper/usergroup/UserGroupMapper.xml"/><!-- 用户组管理 -->
+		<mapper resource="com/wkt/mapper/anonymous/AnonymousMapper.xml"/><!-- 匿名用户管理 -->
+		<mapper resource="com/wkt/mapper/weights/WeightsMapper.xml"/><!-- 用户权重管理 -->
+		<mapper resource="com/wkt/mapper/activity/ActivityMapper.xml"/><!-- 活动 -->
+		<mapper resource="com/wkt/mapper/example/ExampleMapper.xml"/><!-- 榜样管理 -->
+		<mapper resource="com/wkt/mapper/backcommon/BackCommonMapper.xml"/><!-- 后台通用管理 -->
+		<mapper resource="com/wkt/mapper/example/ExampleMapper.xml"/><!-- 商机，招商单位，管理 -->
+		<mapper resource="com/wkt/mapper/secret/SecretMapper.xml"/><!-- 秘闻管理 -->
+		<mapper resource="com/wkt/mapper/topic/TopicMapper.xml"/><!-- 话题管理 -->
+		<mapper resource="com/wkt/mapper/business/BusinessMapper.xml"/><!-- 话题管理 -->
+		<mapper resource="com/wkt/mapper/article/ArticleMapper.xml"/><!-- 江湖事管理 -->
+		<mapper resource="com/wkt/mapper/pushdevice/PushDeviceMapper.xml"/><!--设备推送管理 -->
+		<mapper resource="com/wkt/mapper/file/fileMapper.xml"/><!-- 附件 -->
+		<mapper resource="com/wkt/mapper/circleshare/CircleShareMapper.xml"/><!--  帖子 -->
+		<mapper resource="com/wkt/mapper/association/ArticleAssociationMapper.xml"/><!--  内容审核 -->
+		<mapper resource="com/wkt/mapper/comment/commentMapper.xml"/><!-- 评论鼓励 -->
+		<mapper resource="com/wkt/mapper/push/PushMapper.xml"/><!-- 推送 -->
+		<mapper resource="com/wkt/mapper/shanghui/ShangHuiMapper.xml"/><!-- 商会 -->
+		<mapper resource="com/wkt/mapper/gsl/GslMapper.xml"/><!-- 工商联要闻 -->
+		<mapper resource="com/wkt/mapper/hotspots/HotSpotsMapper.xml"/><!-- 工商联要闻 -->
+		<mapper resource="com/wkt/mapper/feed/FeedMapper.xml"/><!-- 信息流管理 -->
+		<mapper resource="com/wkt/mapper/placetree/PlaceTreeMapper.xml"/><!-- 地区 -->
+		<mapper resource="com/wkt/mapper/slider/SliderMapper.xml"/><!-- 开机滑屏管理 -->
+		<mapper resource="com/wkt/mapper/peacock/PeacockMapper.xml"/><!-- 开屏广告管理 -->
+		<mapper resource="com/wkt/mapper/jpushinfo/JpushInfoMapper.xml"/><!-- 极光推送信息 -->
+		<mapper resource="com/wkt/mapper/sendmessage/SendMessageMapper.xml"/><!-- 短信信息 -->
+		<mapper resource="com/wkt/mapper/gslmanager/GslManagerMapper.xml"/><!-- 工商联管理 -->
+		<mapper resource="com/wkt/mapper/shmanager/ShManagerMapper.xml"/><!-- 商会管理 -->
+		<mapper resource="com/wkt/mapper/appMapper/AppMapper.xml"/><!-- 未来无线返回调用接口 -->
+	</mappers>    
+</configuration>
+    

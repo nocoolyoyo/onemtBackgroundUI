@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.manager.IManagerDao">
+	
+	<!-- 获取所有用户信息列表 -->
+	<select id="findAllUserInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.username,
+			t.`password` password,
+			t.sex,
+			t.telephone,
+			t.realname,
+			t.`status` status,
+			t.createtime,
+			ifnull(t.role_id, '') roleid,
+			case when t.role_id is not null  then (select s.rolename from yj_yy_role s where s.roleid=t.role_id) 
+				 else '' END as rolename
+		FROM
+			yj_yy_user t
+		where 1=1 and t.state=1
+		<if test="status !=null and status !=''">
+			<if test="status == 1">
+				and t.`status` = 1
+			</if>
+			<if test="status == 2">
+				and t.`status` != 1
+			</if>
+		</if>
+		<if test="username !=null and username !=''">
+			and t.username like '%${username}%'
+		</if>
+		order by t.createtime desc 
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有用户信息总数 -->
+	<select id="findAllUserInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_yy_user t
+		where 1=1 and t.state=1
+		<if test="status !=null and status !=''">
+			<if test="status == 1">
+				and t.`status` = 1
+			</if>
+			<if test="status == 2">
+				and t.`status` != 1
+			</if>
+		</if>
+		<if test="username !=null and username !=''">
+			and t.username like '%${username}%'
+		</if>
+	</select>
+	
+	<!-- 根据用户ID获取用户信息 -->
+	<select id="getUserInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.username,
+			t.`password` password,
+			t.sex,
+			t.telephone,
+			t.realname,
+			t.`status` status,
+			t.state,
+			t.createtime,
+			ifnull(t.role_id, '') roleid,
+			case when t.role_id is not null  then (select s.rolename from yj_yy_role s where s.roleid=t.role_id) 
+				 else '' END as rolename
+		FROM
+			yj_yy_user t
+		where t.id = #{id}
+	</select>
+	
+	<!-- 检查密码 -->
+	<select id="getUserPassword" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.`password` password
+		FROM
+			yj_yy_user t
+		where t.id = #{id}
+	</select>
+	
+	<!-- 新增用户信息 -->
+	<insert id="addUserInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="usid">
+		INSERT INTO yj_yy_user (
+			username,
+			password,
+			sex,
+			telephone,
+			realname,
+			status,
+			createtime,
+			role_id,
+			state
+		) values (
+			#{username},#{password},#{sex},#{telephone},#{realname},1,#{nowtime},#{roleid},1
+		)
+	</insert>
+	
+	<!-- 修改用户信息 -->
+	<update id="updateUserInfo" parameterType="java.util.HashMap">
+		update yj_yy_user set username = #{username}
+						<if test="password !=null and password !=''">
+							,password = #{password}
+						</if>,realname = #{realname},
+							  role_id = #{roleid},
+							  sex = #{sex},
+							  telephone = #{telephone}
+		where id = #{id}
+	</update>
+	
+	<!-- 停用账户 -->
+	<update id="StopUserInfo" parameterType="java.util.HashMap">
+		update yj_yy_user set status = #{status} where id = #{id}
+	</update>
+	
+	<!-- 删除前检查是否有关联-->
+	<select id="checkUserRole" parameterType="java.util.HashMap" resultType="String">
+		SELECT
+			t.role_id roleid
+		FROM
+			yj_yy_user t
+		where t.id = #{id}
+	</select>
+	
+	<!-- 删除用户信息 -->
+	<delete id="delUserInfo" parameterType="java.util.HashMap">
+		update yj_yy_user set state=2
+		where id = #{id}
+	</delete>
+	
+	<!-- 检查用户名是否重复 -->
+	<select id="checkUserName" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_yy_user t
+		where 1=1 and t.state=1
+		<if test="id !=null and id !=''">
+			and t.id!=${id}
+		</if>
+		and t.username=#{username}
+	</select>
+</mapper>

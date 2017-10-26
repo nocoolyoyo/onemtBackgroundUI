@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.comment.ICommentDao">
+	<select id="findCommentEncourage" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			(
+				SELECT
+					aa.*
+				FROM
+					(
+						SELECT
+							c.id,
+							c.obj_id,
+							c.obj_type,
+							1 type,
+							c.reply_user_id,
+							c.reply_user_name,
+							max(c.create_time) create_time,
+							c.user_id,
+							c.user_name,
+							c.content,
+							f.id feed_id
+						FROM
+							yj_common_comment c,
+							yj_feed f
+						WHERE
+							c.weight >= 40
+						AND c.`status` = 1
+						AND c.reply_user_name IS NOT NULL
+						AND c.reply_user_anonymous != 1
+						AND c.is_anonymous != 1
+						AND c.fid = f.obj_id
+						AND f.obj_type = 28
+						GROUP BY
+							c.id
+						ORDER BY
+							c.create_time DESC
+					) aa
+				UNION ALL
+					SELECT
+						bb.*
+					FROM
+						(
+							SELECT
+								c.id,
+								c.obj_id,
+								c.obj_type,
+								2 type,
+								c.user_id reply_user_id,
+								c.user_name reply_user_name,
+								max(z.create_time) create_time,
+								z.user_id user_id,
+								z.user_name user_name,
+								c.content,
+								f.id feed_id
+							FROM
+								yj_common_comment c,
+								yj_common_zan z,
+								yj_feed f
+							WHERE
+								c.id = z.obj_id
+							AND z.obj_type = 15
+							AND z.`status` = 1
+							AND c.`status` = 1
+							AND z.weight >= 40
+							AND c.id = f.obj_id
+							AND f.obj_type = 28
+							GROUP BY
+								c.id
+							ORDER BY
+								z.create_time DESC
+						) bb
+					UNION ALL
+						SELECT
+							cc.*
+						FROM
+							(
+								SELECT
+									c.id,
+									c.obj_id,
+									c.obj_type,
+									3 type,
+									c.reply_user_id,
+									c.reply_user_name,
+									max(f.create_time) create_time,
+									c.user_id,
+									c.user_name,
+									c.content,
+									f.id feed_id
+								FROM
+									yj_common_comment c,
+									yj_feed f
+								WHERE
+									c.zan_count_all >= 20
+								AND c.`status` = 1
+								AND c.reply_user_name IS NULL
+								AND c.reply_user_anonymous != 1
+								AND c.is_anonymous != 1
+								AND c.id = f.obj_id
+								AND f.obj_type = 28
+								GROUP BY
+									c.id
+								ORDER BY
+									f.create_time DESC
+							) cc
+						UNION ALL
+							SELECT
+								dd.*
+							FROM
+								(
+									SELECT
+										c.id,
+										c.obj_id,
+										c.obj_type,
+										4 type,
+										c.reply_user_id,
+										c.reply_user_name,
+										max(f.create_time) create_time,
+										c.user_id,
+										c.user_name,
+										c.content,
+										f.id feed_id
+									FROM
+										yj_common_comment c,
+										yj_feed f
+									WHERE
+										c.is_good = 1
+									AND c.`status` = 1
+									AND c.id = f.obj_id
+									AND f.obj_type = 28
+									GROUP BY
+										c.id
+									ORDER BY
+										f.create_time DESC
+								) dd
+			) tab
+		ORDER BY
+			tab.create_time DESC
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<select id="countCommentEncourage" parameterType="java.util.HashMap" resultType="Integer" >
+		SELECT
+			COUNT(*) 
+		FROM
+			(
+				SELECT
+					aa.*
+				FROM
+					(
+						SELECT
+							c.id,
+							c.obj_id,
+							c.obj_type,
+							1 type,
+							c.reply_user_id,
+							c.reply_user_name,
+							max(c.create_time) create_time,
+							c.user_id,
+							c.user_name,
+							c.content,
+							f.id feed_id
+						FROM
+							yj_common_comment c,
+							yj_feed f
+						WHERE
+							c.weight >= 40
+						AND c.`status` = 1
+						AND c.reply_user_name IS NOT NULL
+						AND c.reply_user_anonymous != 1
+						AND c.is_anonymous != 1
+						AND c.fid = f.obj_id
+						AND f.obj_type = 28
+						GROUP BY
+							c.id
+						ORDER BY
+							c.create_time DESC
+					) aa
+				UNION ALL
+					SELECT
+						bb.*
+					FROM
+						(
+							SELECT
+								c.id,
+								c.obj_id,
+								c.obj_type,
+								2 type,
+								c.user_id reply_user_id,
+								c.user_name reply_user_name,
+								max(z.create_time) create_time,
+								z.user_id user_id,
+								z.user_name user_name,
+								c.content,
+								f.id feed_id
+							FROM
+								yj_common_comment c,
+								yj_common_zan z,
+								yj_feed f
+							WHERE
+								c.id = z.obj_id
+							AND z.obj_type = 15
+							AND z.`status` = 1
+							AND c.`status` = 1
+							AND z.weight >= 40
+							AND c.id = f.obj_id
+							AND f.obj_type = 28
+							GROUP BY
+								c.id
+							ORDER BY
+								z.create_time DESC
+						) bb
+					UNION ALL
+						SELECT
+							cc.*
+						FROM
+							(
+								SELECT
+									c.id,
+									c.obj_id,
+									c.obj_type,
+									3 type,
+									c.reply_user_id,
+									c.reply_user_name,
+									max(f.create_time) create_time,
+									c.user_id,
+									c.user_name,
+									c.content,
+									f.id feed_id
+								FROM
+									yj_common_comment c,
+									yj_feed f
+								WHERE
+									c.zan_count_all >= 20
+								AND c.`status` = 1
+								AND c.reply_user_name IS NULL
+								AND c.reply_user_anonymous != 1
+								AND c.is_anonymous != 1
+								AND c.id = f.obj_id
+								AND f.obj_type = 28
+								GROUP BY
+									c.id
+								ORDER BY
+									f.create_time DESC
+							) cc
+						UNION ALL
+							SELECT
+								dd.*
+							FROM
+								(
+									SELECT
+										c.id,
+										c.obj_id,
+										c.obj_type,
+										4 type,
+										c.reply_user_id,
+										c.reply_user_name,
+										max(f.create_time) create_time,
+										c.user_id,
+										c.user_name,
+										c.content,
+										f.id feed_id
+									FROM
+										yj_common_comment c,
+										yj_feed f
+									WHERE
+										c.is_good = 1
+									AND c.`status` = 1
+									AND c.id = f.obj_id
+									AND f.obj_type = 28
+									GROUP BY
+										c.id
+									ORDER BY
+										f.create_time DESC
+								) dd
+			) tab
+	</select>
+
+</mapper>

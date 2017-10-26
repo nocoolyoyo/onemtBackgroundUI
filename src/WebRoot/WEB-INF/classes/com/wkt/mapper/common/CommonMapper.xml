@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.common.ICommonDao">
+	
+	<!-- 获取行业信息列表 -->
+	<select id="findIndustryList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t. NAME
+		FROM
+			PRE_COMMON_INDUSTRY t
+		WHERE
+			1 = 1
+			<if test="id !=null and id !=''">
+				and t.id = #{id}
+			</if>
+		ORDER BY
+			t.id ASC
+	</select>
+	<!-- 获取评论列表总数 -->
+	<select id="findCommentCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM(SELECT DISTINCT
+			c.id,
+			c.fid,
+			c.create_time,
+			c.user_id,
+			c.user_name,
+			c.user_avatar,
+			c.user_identity,
+			c.user_v,
+			c.content,
+			c.is_voice,
+			c.voice,
+			c.voice_size,
+			c.zan_count,
+			c.zan_count_all,
+			c.is_anonymous,
+			c.is_good,
+			c.reply_user_anonymous,
+			c.reply_user_id,
+			c.reply_user_name,
+			c.obj_id,
+			c.obj_type,
+			c.title,
+			c.agent,
+			(
+				SELECT
+					u.realname
+				FROM
+					yj_yy_user u
+				WHERE
+					u.id = c.agent
+			) agent_name
+		FROM
+			yj_common_comment c
+			<if test="circle_id != null and circle_id != ''">
+				,yj_circle_related r
+			</if>
+		WHERE
+			c.`status` = #{status}
+		<if test="keyword != null and keyword != ''">
+			AND (c.title LIKE '%${keyword}%' or c.content LIKE '%${keyword}%')
+		</if>
+		<if test="circle_id != null and circle_id != ''">
+			AND r.`status` = 1
+			AND r.circle_id = #{circle_id}
+			AND r.obj_id = c.obj_id
+			AND r.obj_type = c.obj_type
+		</if>
+		<if test="obj_id != null and obj_id != '' and obj_type != null and obj_type != ''">
+			AND c.obj_id = #{obj_id}
+			AND c.obj_type = #{obj_type}
+		</if>
+		<if test="start_time != null and start_time != ''">
+			AND c.create_time >= #{start_time}
+		</if>
+		<if test="end_time != null and end_time != ''">
+			<![CDATA[AND c.create_time <= #{end_time}]]>
+		</if>) sq
+	</select>
+	<!-- 获取评论列表 -->
+	<select id="findCommentList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT DISTINCT
+			c.id,
+			c.fid,
+			c.create_time,
+			c.user_id,
+			c.user_name,
+			c.user_avatar,
+			c.user_identity,
+			c.user_v,
+			c.content,
+			c.is_voice,
+			c.voice,
+			c.voice_size,
+			c.zan_count,
+			c.zan_count_all,
+			c.is_anonymous,
+			c.is_good,
+			c.reply_user_anonymous,
+			c.reply_user_id,
+			c.reply_user_name,
+			c.obj_id,
+			c.obj_type,
+			c.title,
+			c.agent,
+			(
+				SELECT
+					u.realname
+				FROM
+					yj_yy_user u
+				WHERE
+					u.id = c.agent
+			) agent_name
+		FROM
+			yj_common_comment c
+			<if test="circle_id != null and circle_id != ''">
+				,yj_circle_related r
+			</if>
+		WHERE
+			c.`status` = #{status}
+		<if test="keyword != null and keyword != ''">
+			AND (c.title LIKE '%${keyword}%' or c.content LIKE '%${keyword}%')
+		</if>
+		<if test="circle_id != null and circle_id != ''">
+			AND r.`status` = 1
+			AND r.circle_id = #{circle_id}
+			AND r.obj_id = c.obj_id
+			AND r.obj_type = c.obj_type
+		</if>
+		<if test="obj_id != null and obj_id != '' and obj_type != null and obj_type != ''">
+			AND c.obj_id = #{obj_id}
+			AND c.obj_type = #{obj_type}
+		</if>
+		<if test="start_time != null and start_time != ''">
+			AND c.create_time >= #{start_time}
+		</if>
+		<if test="end_time != null and end_time != ''">
+			<![CDATA[AND c.create_time <= #{end_time}]]>
+		</if>
+		ORDER BY
+			c.create_time DESC
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 查询各表基本数据信息 -->
+	<select id="findCommonInformation" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			title
+		FROM
+			${table}
+		WHERE
+			id = #{obj_id}
+	</select>
+	<!-- 评论数加1  -->
+	<update id="addCommonNum" parameterType="java.util.HashMap">
+		UPDATE ${table}
+		 	set comment_count = comment_count +1,comment_count_all = comment_count_all +1
+		WHERE
+			id = #{obj_id}
+	</update>
+	<!-- 评论数减1  -->
+	<update id="deleteCommonNum" parameterType="java.util.HashMap">
+		UPDATE ${table}
+		 	set comment_count = comment_count -1,comment_count_all = comment_count_all -1
+		WHERE
+			id = #{obj_id}
+	</update>
+	<!-- 修改评论 -->
+	<update id="updateComment" parameterType="java.util.HashMap">
+		UPDATE yj_common_comment
+		SET id = #{id}
+		<if test="is_good != null and is_good != ''">
+		 	,is_good = #{is_good}
+		</if>
+		<if test="is_good == '0'.toString()">
+		 	,weight = weight - 50
+		</if>
+		<if test="is_good == '1'.toString()">
+		 	,weight = weight + 50
+		</if>
+		<if test="status != null and status != ''">
+		 	,`status` = #{status}
+		</if>
+		<if test="zan_count_all != null and zan_count_all != ''">
+		 	,zan_count_all = #{zan_count_all}
+		 	,weight = weight-${old_zan_count_all}+${zan_count_all}
+		</if>
+		<if test="content != null and content != ''">
+		 	,content = #{content}
+		</if>
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 删除评论语言翻译内容 -->
+	<update id="deleteCommentContent" parameterType="java.util.HashMap">
+		UPDATE yj_common_comment
+		SET content = null
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 新增信息流筛选条件对应用户 -->
+	<insert id="insertFeedFilterUser" parameterType="java.util.HashMap">
+		INSERT INTO yj_feed_filter_user (filter, user_id)
+			VALUES
+				(#{filter}, #{user_id})
+	</insert>
+	<!-- 新增圈子信息流筛选条件对应用户 -->
+	<insert id="insertFilterCircleUser" parameterType="java.util.HashMap">
+		INSERT INTO yj_feed_filter_user (filter, user_id) SELECT
+			#{filter},
+			u.user_id
+		FROM
+			yj_circle_user u
+		WHERE
+			u.`status` = 1
+		AND u.circle_id = #{circle_id}
+		GROUP BY
+			u.user_id
+	</insert>
+	<!-- 新增信息流筛选条件对应用户 -->
+	<delete id="deleteFeedFilterUser" parameterType="java.util.HashMap">
+		DELETE
+		FROM
+			yj_feed_filter_user
+		WHERE
+			filter = #{filter}
+		<if test="user_id != null and user_id != ''">
+			AND user_id = #{user_id}
+		</if>
+	</delete>
+	<!-- 删除信息流筛选用户表里人员 -->
+	<delete id="deleteFilterUser" parameterType="java.util.HashMap">
+		DELETE
+		FROM
+			yj_feed_filter_user
+		WHERE
+			filter LIKE '%${del_filter}'
+		AND user_id = #{user_id}
+	</delete>
+	<!-- 查询信息流推送条件 -->
+	<select id="findFeedinfoList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			f.id,
+			f.feed_id,
+			f.sh_ids,
+			f.sh_names,
+			f.industry_ids,
+			f.industry_names,
+			f.region_ids,
+			f.region_names,
+			f.nativeplace_ids,
+			f.nativeplace_names,
+			f.usergroup_ids,
+			f.usergroup_names,
+			f.user_ids,
+			f.user_names,
+			f.circle_ids,
+			f.circle_names,
+			f.create_time
+		FROM
+			yj_feed_temp_feedinfo f
+		WHERE
+			f.obj_id = #{obj_id}
+		AND f.obj_type = #{obj_type}
+	</select>
+	<!-- 查询对应的信息流大小置顶 -->
+	<select id="findFeedTmpList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.feed_id,
+			t.filter,
+			t.display_position,
+			t.start_time,
+			t.end_time,
+			t.create_time,
+			t.type
+		FROM
+			yj_feed_filter_tmp t
+		WHERE
+			t.feed_id = #{feed_id}
+	</select>
+	<!-- 添加嘉宾(非商帮帮用户) -->
+	<insert id="insertGuest" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="user_id">
+		INSERT INTO yj_common_external_user (
+			user_name
+			<if test="user_identity != null and user_identity != ''">
+				,user_identity
+			</if>
+			<if test="user_profile != null and user_profile != ''">
+				,user_profile
+			</if>
+			<if test="user_avatar != null and user_avatar != ''">
+				,user_avatar
+			</if>
+			<if test="user_v != null and user_v != ''">
+				,user_v
+			</if>
+			,user_company
+		)
+		VALUES
+			(
+				#{user_name}
+				<if test="user_identity != null and user_identity != ''">
+					,#{user_identity}
+				</if>
+				<if test="user_profile != null and user_profile != ''">
+					,#{user_profile}
+				</if>
+				<if test="user_avatar != null and user_avatar != ''">
+					,#{user_avatar}
+				</if>
+				<if test="user_v != null and user_v != ''">
+					,#{user_v}
+				</if>
+				,#{user_company}
+			)
+	</insert>
+	<!-- 代发评论 -->
+	<insert id="insertComment" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.HashMap">
+		INSERT INTO yj_common_comment (
+				create_time
+				<if test="fid != null and fid != ''">
+					,fid
+				</if>
+				,user_id
+				<if test="user_avatar != null and user_avatar != ''">
+					,user_avatar
+				</if>
+				,user_name
+				<if test="user_identity != null and user_identity != ''">
+					,user_identity
+				</if>
+				<if test="user_v != null and user_v != ''">
+					,user_v
+				</if>
+				<if test="content != null and content != ''">
+					,content
+				</if>
+				<if test="is_voice != null and is_voice != ''">
+					,is_voice
+				</if>
+				<if test="voice != null and voice != ''">
+					,voice
+				</if>
+				<if test="voice_size != null and voice_size != ''">
+					,voice_size
+				</if>
+				<if test="editor != null and editor != ''">
+					,editor
+				</if>
+				,weight
+				,obj_id
+				,obj_type
+				,status
+				<if test="is_anonymous != null and is_anonymous != ''">
+					,is_anonymous
+				</if>
+				<if test="is_good != null and is_good != ''">
+					,is_good
+				</if>
+				<if test="is_top != null and is_top != ''">
+					,is_top
+				</if>
+				<if test="reply_user_anonymous != null and reply_user_anonymous != ''">
+					,reply_user_anonymous
+				</if>
+				<if test="reply_user_id != null and reply_user_id != ''">
+					,reply_user_id
+				</if>
+				<if test="reply_user_name != null and reply_user_name != ''">
+					,reply_user_name
+				</if>
+				<if test="reply_user_v != null and reply_user_v != ''">
+					,reply_user_v
+				</if>
+				<if test="agent != null and agent != ''">
+					,agent
+				</if>
+				<if test="title != null and title != ''">
+					,title
+				</if>
+			)
+			VALUES
+				(
+					#{create_time}
+					<if test="fid != null and fid != ''">
+						,${fid}
+					</if>
+					,${user_id}
+					<if test="user_avatar != null and user_avatar != ''">
+						,#{user_avatar}
+					</if>
+					,#{user_name}
+					<if test="user_identity != null and user_identity != ''">
+						,#{user_identity}
+					</if>
+					,${user_v}
+					<if test="content != null and content != ''">
+						,#{content}
+					</if>
+					<if test="is_voice != null and is_voice != ''">
+						,${is_voice}
+					</if>
+					<if test="voice != null and voice != ''">
+						,#{voice}
+					</if>
+					<if test="voice_size != null and voice_size != ''">
+						,#{voice_size}
+					</if>
+					<if test="editor != null and editor != ''">
+						,#{editor}
+					</if>
+					,${weight}
+					,${obj_id}
+					,${obj_type}
+					,1
+					<if test="is_anonymous != null and is_anonymous != ''">
+						,${is_anonymous}
+					</if>
+					<if test="is_good != null and is_good != ''">
+						,${is_good}
+					</if>
+					<if test="is_top != null and is_top != ''">
+						,${is_top}
+					</if>
+					<if test="reply_user_anonymous != null and reply_user_anonymous != ''">
+						,${reply_user_anonymous}
+					</if>
+					<if test="reply_user_id != null and reply_user_id != ''">
+						,${reply_user_id}
+					</if>
+					<if test="reply_user_name != null and reply_user_name != ''">
+						,#{reply_user_name}
+					</if>
+					<if test="reply_user_v != null and reply_user_v != ''">
+						,${reply_user_v}
+					</if>
+					<if test="agent != null and agent != ''">
+						,#{agent}
+					</if>
+					<if test="title != null and title != ''">
+						,#{title}
+					</if>
+			)
+	</insert>
+	<!-- 新增信息流筛选条件 -->
+	<insert id="insertFeedFilter" parameterType="java.util.HashMap">
+		INSERT INTO yj_feed_filter (
+			feed_id,
+			filter,
+			create_time,
+			push_time
+		)
+		VALUES
+			(
+				#{feed_id},
+				#{filter},
+				#{create_time},
+				#{push_time}
+			)
+	</insert>
+	
+	<!-- 获取早报信息流其他字段 所需内容 -->
+	<select id="findMorningMap" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.issue  from yj_morning t where t.id = ${sourceid}
+	</select>
+	
+	<!-- 获取秘闻信息流其他字段 所需内容 -->
+	<select id="pushScretInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap" >
+		select t.type,t.is_length  from yj_secret t where t.id = ${sourceid}
+	</select>
+	
+	<!-- 获取用户信息流其他字段 所需内容 -->
+	<select id="getPushUserInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.USID id,
+			m.REALNAME name,
+			m.USER_V v,
+			m.IMAGE img,
+		(CASE t.type
+		WHEN 1 THEN
+			concat(s.SHNAME, o.ONAME) 
+		WHEN 2 THEN
+			concat(t.COMPANY, t.COMPANYWORK) end) sh_post
+		FROM
+			PRE_SHAPP_MEMBER_DETAIL t
+		LEFT JOIN PRE_COMMON_SHANGHUI s ON t.SHID = s.SHID
+		AND s.`STATUS` = 1
+		LEFT JOIN PRE_COMMON_OCCUPATION o ON t.OID = o.OID
+		AND o.`STATUS` = 1
+		LEFT JOIN PRE_AL_MEMBER m ON t.USID = m.USID
+		WHERE
+			t.USID = ${sourceid}
+	</select>
+	
+	<!-- 获取圈子信息流其他字段 所需内容 -->
+	<select id="getPushcircleInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.id circle_id,t.title circle_name  from yj_circle t where t.id = ${sourceid}
+	</select>
+	
+	<!-- 获取商会资讯信息流其他字段 所需内容 -->
+	<select id="getPushShanghuiInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select tt.SHID sh_id,tt.SHNAME sh_name from PRE_COMMON_INFORMATION t, PRE_COMMON_SHANGHUI tt where t.BELONGCOMMERCEID = tt.SHID and t.INID = ${sourceid}
+	</select>
+	
+	<!-- 获取商会通知信息流其他字段 所需内容 -->
+	<select id="getPushShanghuiNoticeInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select tt.SHID sh_id,tt.SHNAME sh_name,t.SIGN_UP is_sign from PRE_COMMON_NOTICE t, PRE_COMMON_SHANGHUI tt where t.SHANGHUIID = tt.SHID and t.NID = ${sourceid}
+	</select>
+	
+	<!-- 获取商机信息流其他字段 所需内容 -->
+	<select id="getPushBusinessInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.unit_name unit,t.area,t.industry,t.type,t.money  from yj_business t where t.id =  ${sourceid}
+	</select>
+	
+	<!-- 获取专题信息流其他字段 所需内容 -->
+	<select id="getPushHotspotInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.article_type type,t.article_id id,t.article_title title,t.url from yj_hotspot_related t where t.hotspot_id = ${sourceid} order by t.create_time desc LIMIT 1
+	</select>
+	<!-- 查询评论详情 -->
+	<select id="findCommentDetail" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from yj_common_comment where id = #{id}
+	</select>
+	
+	<!-- 获取用户信息 -->
+	<select id="findUserInfoByid" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from PRE_AL_MEMBER t where t.USID = ${user_id}
+	</select>
+	<!-- 新增关注 -->
+	<insert id="insertCommonFollow" parameterType="java.util.HashMap">
+		INSERT INTO yj_common_follow (
+			create_time,
+			user_id
+			<if test="user_avatar != null and user_avatar != ''">
+				,user_avatar
+			</if>
+			<if test="user_name != null and user_name != ''">
+				,user_name
+			</if>
+			<if test="user_identity != null and user_identity != ''">
+				,user_identity
+			</if>
+			<if test="user_v != null and user_v != ''">
+				,user_v
+			</if>
+			<if test="obj_id != null and obj_id != ''">
+				,obj_id
+			</if>
+			<if test="obj_type != null and obj_type != ''">
+				,obj_type 
+			</if>
+			<if test="agent != null and agent != ''">
+				,agent
+			</if>
+		)
+		VALUES
+			(#{create_time},
+			${user_id}
+			<if test="user_avatar != null and user_avatar != ''">
+				,#{user_avatar}
+			</if>
+			<if test="user_name != null and user_name != ''">
+				,#{user_name}
+			</if>
+			<if test="user_identity != null and user_identity != ''">
+				,#{user_identity}
+			</if>
+			<if test="user_v != null and user_v != ''">
+				,#{user_v}
+			</if>
+			<if test="obj_id != null and obj_id != ''">
+				,#{obj_id}
+			</if>
+			<if test="obj_type != null and obj_type != ''">
+				,#{obj_type} 
+			</if>
+			<if test="agent != null and agent != ''">
+				,#{agent}
+			</if>)
+	</insert>
+	
+	
+	<!-- 新增信息流筛选条件对应用户(用户组) -->
+	<insert id="addFilterUserGroup" parameterType="java.util.HashMap">
+		INSERT INTO yj_feed_filter_user (filter, user_id) 
+		<if test="dutiesName != null and dutiesName != ''">
+			SELECT
+				${filter} filter,
+				m.USID usid
+			FROM
+				PRE_COMMON_OCCUPATION o,
+				PRE_AL_MEMBERRELATION am,
+				PRE_AL_MEMBER m
+			WHERE
+				o.`STATUS` = 1
+			AND o.ONAME IN (${dutiesName})
+			AND am.OCCUPATIONID = o.OID
+			AND m.AVAILABLE = 0
+			AND m.USERNAME = am.USERNAME
+			<if test="userids != null and userids != ''">
+				AND m.USID NOT IN (${userids})
+			</if>
+		</if>
+		<if test="dutiesName != null and dutiesName != '' and userids != null and userids != ''">
+			UNION
+		</if>
+		<if test="userids != null and userids != ''">
+			SELECT
+				${filter} filter,
+				m.USID usid
+			FROM
+				PRE_AL_MEMBER m
+			WHERE
+				m.USID IN (${userids})
+			AND m.AVAILABLE = 0
+		</if>
+	</insert>
+</mapper>

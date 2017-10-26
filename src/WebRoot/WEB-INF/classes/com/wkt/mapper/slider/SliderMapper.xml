@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.slider.ISliderDao">
+	
+	<!-- 获取开机滑屏列表 -->
+	<select id="findPowerSliderLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from (
+		select '1' as type, t.* from yj_poweron_slider t where 1=1 and FROM_UNIXTIME(t.slider_end_time/1000,'%Y-%m-%d %H:%i:%s') >= DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')
+		union ALL
+		select '2' as type, tt.* from yj_poweron_slider tt where 1=1 <![CDATA[ and FROM_UNIXTIME(tt.slider_end_time/1000,'%Y-%m-%d %H:%i:%s') < DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')]]> 
+		) a where 1=1
+		<if test="status !=null and status !=''">
+			and a.status = #{status}
+		</if>
+		<if test="slider_start_time != null and slider_start_time != ''">
+			and aa.slider_start_time >=#{slider_start_time}
+		</if>
+		<if test="slider_end_time !=null and slider_end_time !=''">
+			<![CDATA[ and a.slider_start_time <=#{slider_end_time} ]]> 
+		</if>
+		<if test="slider_name !=null and slider_name !=''">
+			and a.slider_name like '%${slider_name}%'
+		</if>
+		<if test="status !=null and status !=''">
+			<if test="status == 1">
+				order by type,a.slider_id desc
+			</if>
+			<if test="status != 1">
+				order by a.update_time desc , a.create_time desc
+			</if>
+		</if>
+		
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取开机滑屏总数 -->
+	<select id="findPowerSliderListsCount" parameterType="java.util.HashMap" resultType="Integer">
+		select count(*) from yj_poweron_slider t where 1=1
+		<if test="status !=null and status !=''">
+			and t.status = #{status}
+		</if>
+		<if test="slider_start_time != null and slider_start_time != ''">
+			and t.slider_start_time >=#{slider_start_time}
+		</if>
+		<if test="slider_end_time !=null and slider_end_time !=''">
+			<![CDATA[ and t.slider_start_time <=#{slider_end_time} ]]> 
+		</if>
+		<if test="slider_name !=null and slider_name !=''">
+			and t.slider_name like '%${slider_name}%'
+		</if>
+	
+	</select>
+	
+	<!-- 新增开机滑屏信息 -->
+	<insert id="addPowerSliderInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="slider_id">
+		INSERT INTO yj_poweron_slider (
+			author_id,
+			author_name,
+			create_time,
+			update_user_id,
+			update_user_name,
+			update_time,
+			status
+			<if test="slider_name != null and slider_name != ''">
+				,slider_name
+			</if>
+			<if test="slider_pic_images != null and slider_pic_images != ''">
+				,slider_pic_images
+			</if>
+			<if test="slider_start_time != null and slider_start_time != ''">
+				,slider_start_time
+			</if>
+			<if test="slider_end_time != null and slider_end_time != ''">
+				,slider_end_time
+			</if>
+		) values (
+			#{author_id},
+			#{author_name},
+			#{create_time},
+			#{author_id},
+			#{author_name},
+			#{create_time},
+			1
+			<if test="slider_name != null and slider_name != ''">
+				,#{slider_name}
+			</if>
+			<if test="slider_pic_images != null and slider_pic_images != ''">
+				,#{slider_pic_images}
+			</if>
+			<if test="slider_start_time != null and slider_start_time != ''">
+				,#{slider_start_time}
+			</if>
+			<if test="slider_end_time != null and slider_end_time != ''">
+				,#{slider_end_time}
+			</if>
+		)
+	</insert>
+	
+	<!-- 修改开机滑屏信息 -->
+	<update id="updatePowerSliderInfo" parameterType="java.util.HashMap">
+		update yj_poweron_slider set 
+		update_user_id = #{update_user_id},
+		update_user_name = #{update_user_name},
+		update_time = #{update_time}
+		<if test="slider_name != null and slider_name != ''">
+			,slider_name = #{slider_name}
+		</if>
+		<if test="slider_pic_images != null and slider_pic_images != ''">
+			,slider_pic_images = #{slider_pic_images}
+		</if>
+		<if test="slider_start_time != null and slider_start_time != ''">
+			,slider_start_time = #{slider_start_time}
+		</if>
+		<if test="slider_end_time != null and slider_end_time != ''">
+		    ,slider_end_time = #{slider_end_time}
+		</if>
+		where slider_id = #{slider_id}
+	</update>
+	
+	
+	
+	<!-- 删除/恢复/中止投放信息 -->
+	<update id="stopordelPowerSliderInfo" parameterType="java.util.HashMap">
+		update yj_poweron_slider set 
+		update_user_id = #{update_user_id},
+		update_user_name = #{update_user_name},
+		update_time = #{update_time}
+		<if test="slider_end_time != null and slider_end_time != ''">
+		    ,slider_end_time = #{slider_end_time}
+		</if>
+		<if test="status != null and status != ''">
+		    ,status = #{status}
+		</if>
+		where slider_id = #{slider_id}
+	</update>
+	
+	<!-- 根据ID获取开机滑屏信息 -->
+	<select id="findPowerSliderInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from yj_poweron_slider t where slider_id = #{slider_id}
+	</select>
+	
+</mapper>

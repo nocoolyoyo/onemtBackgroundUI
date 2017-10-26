@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.hotspots.IHotSpotsDao">
+
+	<!-- 查询专题列表 -->
+	<select id="findHotSpotsLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM yj_hotspot ym where 1=1 
+		<if test="status!=null and status!=''">
+			and ym.status=#{status}
+		</if>
+		<if test="state!=null and state!=''">
+			and ym.state in(${state})
+		</if>
+		<if test="title!=null and title!=''">
+			and ym.title like '%${title}%'
+		</if>
+		<if test="start_time!=null and start_time!=''">
+			and ym.create_time >=#{start_time}
+		</if>
+		<if test="end_time!=null and end_time!=''">
+			<![CDATA[ and ym.create_time <=#{end_time} ]]> 
+		</if>
+		<if test="ustart_time!=null and ustart_time!=''">
+			and ym.update_time >=#{ustart_time}
+		</if>
+		<if test="uend_time!=null and uend_time!=''">
+			<![CDATA[ and ym.update_time <=#{uend_time} ]]> 
+		</if>
+		<if test="astart_time!=null and astart_time!=''">
+			and ym.audit_time >=#{astart_time}
+		</if>
+		<if test="aend_time!=null and aend_time!=''">
+			<![CDATA[ and ym.audit_time <=#{aend_time} ]]> 
+		</if>
+		order by ym.update_time desc,ym.create_time desc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取专题查询总数 -->
+	<select id="countHotSpots" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*) FROM yj_hotspot ym where 1=1 
+		<if test="status!=null and status!=''">
+			and ym.status=#{status}
+		</if>
+		<if test="state!=null and state!=''">
+			and ym.state in(${state})
+		</if>
+		<if test="title!=null and title!=''">
+			and title like '%${title}%'
+		</if>
+		<if test="start_time!=null and start_time!=''">
+			and create_time >=#{create_time}
+		</if>
+		<if test="end_time!=null and end_time!=''">
+			<![CDATA[ and create_time <=#{create_time} ]]> 
+		</if>
+		<if test="ustart_time!=null and ustart_time!=''">
+			and ym.update_time >=#{ustart_time}
+		</if>
+		<if test="uend_time!=null and uend_time!=''">
+			<![CDATA[ and ym.update_time <=#{uend_time} ]]> 
+		</if>
+		<if test="astart_time!=null and astart_time!=''">
+			and ym.audit_time >=#{ustart_time}
+		</if>
+		<if test="aend_time!=null and aend_time!=''">
+			<![CDATA[ and ym.audit_time <=#{aend_time} ]]> 
+		</if>
+	</select>
+	
+	<!-- 获取专题详情 -->
+	<select id="getHotSpotsById" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM yj_hotspot where id=#{id}
+	</select>
+	
+	
+	<!-- 删除/恢复专题 -->
+	<update id="deleteHotSpotsById" parameterType="java.util.HashMap">
+		update yj_hotspot set status= #{status},update_id = #{user_id},update_time=#{update_time},update_name=#{update_name}
+			,update_type=2
+		<if test="audit_user_id !=null and audit_user_id !=''">
+			,audit_user_id=#{audit_user_id}
+		</if>
+		<if test="audit_user_name !=null and audit_user_name !=''">
+			,audit_user_name=#{audit_user_name}
+		</if>
+		<if test="audit_time !=null and audit_time !=''">
+			,audit_time=#{audit_time}
+		</if>
+		where id=#{id}
+	</update>
+	
+	<!-- 审核专题 -->
+	<update id="auditHotSpotsById" parameterType="java.util.HashMap">
+		update yj_hotspot set audit_time=#{audit_time},update_time=#{audit_time}
+			,update_type=2
+		<if test="title!=null and title!=''">
+			,title=#{title}
+		</if>
+		<if test="summary!=null">
+			,summary=#{summary}
+		</if>
+		<if test="content!=null and content!=''">
+			,content=#{content}
+		</if>
+		<if test="state!=null and state!=''">
+			,state=#{state}
+		</if>
+		<if test="status!=null and status!=''">
+			,status=#{status}
+		</if>
+		<if test="show_times_count!=null and show_times_count!=''">
+			,show_times_count=#{show_times_count}
+		</if>
+		<if test="show_people_count!=null and show_people_count!=''">
+			,show_people_count = #{show_people_count}
+		</if>
+		<if test="visit_times_count!=null and visit_times_count!=''">
+			,visit_times_count=#{visit_times_count}
+		</if>
+		<if test="visit_people_count!=null and visit_people_count!=''">
+			,visit_people_count=#{visit_people_count}
+		</if>
+		<if test="zan_count!=null and zan_count!=''">
+			,zan_count=#{zan_count}
+		</if>
+		<if test="favorite_count!=null and favorite_count!=''">
+			,favorite_count=#{favorite_count}
+		</if>
+		<if test="share_count!=null and share_count!=''">
+			,share_count=#{share_count}
+		</if>
+		<if test="comment_count!=null and comment_count!=''">
+			,comment_count=#{comment_count}
+		</if>
+		<if test="view_times_count_all!=null and view_times_count_all!=''">
+			,view_times_count_all=#{view_times_count_all}
+		</if>
+		<if test="view_people_count_all!=null and view_people_count_all!=''">
+			,view_people_count_all=#{view_people_count_all}
+		</if>
+		<if test="zan_count_all!=null and zan_count_all!=''">
+			,zan_count_all=#{zan_count_all}
+		</if>
+		<if test="favorite_count_all!=null and favorite_count_all!=''">
+			,favorite_count_all=#{favorite_count_all}
+		</if>
+		<if test="share_count_all!=null and share_count_all!=''">
+			,share_count_all=#{share_count_all}
+		</if>
+		<if test="comment_count_all!=null and comment_count_all!=''">
+			,comment_count_all=#{comment_count_all}
+		</if>
+		<if test="user_id!=null and user_id!=''">
+			,audit_user_id=#{user_id}
+			,update_id=#{user_id}
+		</if>
+		<if test="user_name!=null and user_name!=''">
+			,audit_user_name=#{user_name}
+			,update_name=#{user_name}
+		</if>
+		 <if test="audit_opinion != null and audit_opinion != ''">
+		 	,audit_opinion = #{audit_opinion}
+		 </if>
+		 where id=#{id}
+	</update>
+	
+	<!-- 修改专题 -->
+	<update id="updateHotSpotsById" parameterType="java.util.HashMap">
+		update yj_hotspot set update_time=#{update_time},update_id=#{user_id},update_name=#{user_name}
+			,update_type=2
+		<if test="title!=null and title!=''">
+			,title=#{title}
+		</if>
+		<if test="summary!=null">
+			,summary=#{summary}
+		</if>
+		<if test="content!=null and content!=''">
+			,content=#{content}
+		</if>
+		<if test="state!=null and state!=''">
+			,state=#{state}
+		</if>
+		<if test="status">
+			,status=#{status}
+		</if>
+		<if test="show_times_count!=null and show_times_count!=''">
+			,show_times_count=#{show_times_count}
+		</if>
+		<if test="show_people_count!=null and show_people_count!=''">
+			,show_people_count = #{show_people_count}
+		</if>
+		<if test="visit_times_count!=null and visit_times_count!=''">
+			,visit_times_count=#{visit_times_count}
+		</if>
+		<if test="visit_people_count!=null and visit_people_count!=''">
+			,visit_people_count=#{visit_people_count}
+		</if>
+		<if test="zan_count!=null and zan_count!=''">
+			,zan_count=#{zan_count}
+		</if>
+		<if test="favorite_count!=null and favorite_count!=''">
+			,favorite_count=#{favorite_count}
+		</if>
+		<if test="share_count!=null and share_count!=''">
+			,share_count=#{share_count}
+		</if>
+		<if test="comment_count!=null and comment_count!=''">
+			,comment_count=#{comment_count}
+		</if>
+		<if test="view_times_count_all!=null and view_times_count_all!=''">
+			,view_times_count_all=#{view_times_count_all}
+		</if>
+		<if test="view_people_count_all!=null and view_people_count_all!=''">
+			,view_people_count_all=#{view_people_count_all}
+		</if>
+		<if test="zan_count_all!=null and zan_count_all!=''">
+			,zan_count_all=#{zan_count_all}
+		</if>
+		<if test="favorite_count_all!=null and favorite_count_all!=''">
+			,favorite_count_all=#{favorite_count_all}
+		</if>
+		<if test="share_count_all!=null and share_count_all!=''">
+			,share_count_all=#{share_count_all}
+		</if>
+		<if test="comment_count_all!=null and comment_count_all!=''">
+			,comment_count_all=#{comment_count_all}
+		</if>
+		where id=#{id}
+	</update>
+	
+	<!-- 添加专题 -->
+	<insert id="insertHotSpots" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="id">
+	INSERT INTO yj_hotspot (title,summary,content,author_id,author_name,create_time,state,status,update_time)
+	VALUE(#{title},#{summary},#{content},#{user_id},#{user_name},#{create_time},#{state},#{status},#{create_time})
+	</insert>
+	
+	<!-- 新增专题相关 -->
+	<insert id="insertHotSpotsRelated" parameterType="java.util.HashMap">
+		insert into yj_hotspot_related(hotspot_id,create_time
+		<if test="obj_id!=null and obj_id!=''">
+			,obj_id
+		</if>
+		<if test="obj_type!=null and obj_type!=''">
+			,obj_type
+		</if>
+		<if test="article_title!=null and article_title!=''">
+			,article_title
+		</if>
+		<if test="url!=null and url!=''">
+			,url
+		</if>
+		<if test="display_order!=null and display_order!=''">
+			,display_order
+		</if>
+		<if test="show_title!=null and show_title!=''">
+			,show_title
+		</if>) 
+		value(#{hotspot_id},#{create_time}
+		<if test="obj_id!=null and obj_id!=''">
+			,#{obj_id}
+		</if>
+		<if test="obj_type!=null and obj_type!=''">
+			,#{obj_type}
+		</if>
+		<if test="article_title!=null and article_title!=''">
+			,#{article_title}
+		</if>
+		<if test="url!=null and url!=''">
+			,#{url}
+		</if>
+		<if test="display_order!=null and display_order!=''">
+			,#{display_order}
+		</if>
+		<if test="show_title!=null and show_title!=''">
+			,#{show_title}
+		</if>)
+	</insert>
+	
+	<!-- 删除专题相关 -->
+	<delete id="deleteHotSpotsRelated" parameterType="java.util.HashMap">
+		delete from yj_hotspot_related where id=#{id}
+	</delete>
+	
+	<!-- 删除全部专题相关 -->
+	<delete id="deleteHotSpotsRelatedAll" parameterType="java.util.HashMap">
+		delete from yj_hotspot_related where hotspot_id=#{id}
+	</delete>
+	
+	<!-- 获取专题相关列表 -->
+	<select id="getHotSpotsRelatedList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM yj_hotspot_related where hotspot_id=#{id}
+	</select>
+	
+	<!-- 获取专题表自增ID -->
+	<select id="getIdentity" parameterType="java.util.HashMap" resultType="Integer">
+		select @@identity
+	</select>
+</mapper>

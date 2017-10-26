@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.jdw.IJdwDao">
+	<select id="findJdwList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM yj_lbt WHERE status = 1 order by position
+	</select>
+	
+	<select id="getByIdOrPositionJdw" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM yj_lbt WHERE status=1
+		<if test="id!=null and id!=''" >
+			and id = #{id}
+		</if>
+		<if test="position!=null and position!=''">
+			and position=#{position}
+		</if>
+	</select>
+	
+	<insert id="insertJdw" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="id">
+		insert into yj_lbt (title,picture,image_url,type,status,title_id,image_url_s,create_time,position
+		<if test="obj_title!=null and obj_title!=''">
+			,obj_title
+		</if>
+		)
+		VALUES(#{title},#{picture},#{image_url},#{type},1,#{title_id},#{image_url_s},now(),#{position}
+		<if test="obj_title!=null and obj_title!=''">
+			,#{obj_title}
+		</if>
+		)
+	</insert>
+	
+	<update id="deleteJdw" parameterType="java.util.HashMap">
+		update yj_lbt set status=2,update_user_id=#{update_user_id},update_time=#{update_time} where id= #{id}
+	</update>
+	
+	<update id="deleteJdwAndPosition" parameterType="java.util.HashMap">
+		update yj_lbt set status=2,update_user_id=#{update_user_id},update_time=#{update_time} where position = #{position}
+	</update>
+	
+	<update id="updateJdw"  parameterType="java.util.HashMap">
+		update yj_lbt set update_user_id=#{update_user_id},update_time=#{update_time}
+		<if test="title!=null and title!=''">
+		,title = #{title}
+		</if>
+		<if test="title!=null and title!=''">
+		,obj_title = #{obj_title}
+		</if>
+		<if test="picture!=null and picture!=''">
+		,picture = #{picture}
+		</if>
+		<if test="image_url!=null and image_url!=''">
+		,image_url = #{image_url}
+		</if>
+		<if test="type!=null and type!=''">
+		,type = #{type}
+		</if>
+		<if test="title_id!=null and title_id!=''">
+		,title_id =#{title_id}
+		</if>
+		<if test="image_url_s!=null and image_url_s!=''">
+		,image_url_s=#{image_url_s}
+		</if>
+		<if test="position!=null and position!=''">
+		,position=#{position}
+		</if>
+		where id = #{id}
+	</update>
+</mapper>

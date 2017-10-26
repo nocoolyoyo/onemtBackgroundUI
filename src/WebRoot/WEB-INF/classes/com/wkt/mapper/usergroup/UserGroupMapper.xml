@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.usergroup.IUserGroupDao">
+	
+	<!-- 获取所有用户组信息列表 -->
+	<select id="findAllUserGroupInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.usergroupname,
+			t.createtime
+		FROM
+			yj_yy_usergroup t
+		where 1=1 
+		<if test="usergroupname !=null and usergroupname !=''">
+			and t.usergroupname like '%${usergroupname}%'
+		</if>
+		order by t.createtime desc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有用户组信息总数 -->
+	<select id="findAllUserGroupInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_yy_usergroup t
+		where 1=1
+		<if test="usergroupname !=null and usergroupname !=''">
+			and t.usergroupname like '%${usergroupname}%'
+		</if>
+	</select>
+	
+	<!-- 根据用户组ID获取用户组信息 -->
+	<select id="getUserGroupInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.usergroupname,
+			t.createtime
+		FROM
+			yj_yy_usergroup t
+		where t.id = #{id}
+	</select>
+	
+	<!-- 获取自增ID -->
+	<select id="getInsertId" parameterType="java.util.HashMap" resultType="Integer">
+		select @@identity
+	</select>
+	
+	<!-- 新增用户组信息 -->
+	<insert id="addUserGroupInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+		INSERT INTO yj_yy_usergroup (
+			usergroupname,
+			createtime
+		) values (
+			#{usergroupname},#{create_time}
+		)
+	</insert>
+	
+	<!-- 修改用户组信息 -->
+	<update id="updateUserGroupInfo" parameterType="java.util.HashMap">
+		update yj_yy_usergroup set usergroupname = #{usergroupname}
+		where id = #{id}
+	</update>
+	
+	<!-- 删除用户组信息 -->
+	<delete id="delUserGroupInfo" parameterType="java.util.HashMap">
+		delete from yj_yy_usergroup where id = #{id}
+	</delete>
+	
+	<!-- 获取用户组对应的所有商会职务信息列表 -->
+	<select id="getGroupDutiesInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.duties_id dutiesid,t.duties_id name
+		FROM
+			yj_yy_usergroup_duties t
+		where t.group_id = #{id}
+	</select>
+	
+	<!-- 获取用户组对应的所有用户信息列表 -->
+	<select id="getGroupUserInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.user_id userid,s.realname from yj_yy_usergroup_user t,PRE_AL_MEMBER s where t.user_id=s.USID and t.group_id = #{id}
+	</select>
+	
+	<!-- 新增用户组关联商会职务信息 -->
+	<insert id="addGroupDutiesInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+		INSERT INTO yj_yy_usergroup_duties (
+			group_id,
+			duties_id
+		) values (
+			#{id},#{dutiesid}
+		)
+	</insert>
+	
+	<!-- 新增用户组关联用户信息 -->
+	<insert id="addGroupUserInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+		INSERT INTO yj_yy_usergroup_user (
+			group_id,
+			user_id
+		) values (
+			#{id},#{userid}
+		)
+	</insert>
+	
+	<!-- 删除用户组关联商会职务信息 -->
+	<delete id="delGroupDutiesInfo" parameterType="java.util.HashMap">
+		delete from yj_yy_usergroup_duties where group_id = #{id}
+	</delete>
+	
+	<!-- 删除用户组关联用户信息 -->
+	<delete id="delGroupUserInfo" parameterType="java.util.HashMap">
+		delete from yj_yy_usergroup_user where group_id = #{id}
+	</delete>
+	
+	<!-- 删除yj_feed_filter_user表对应数据 -->
+	<delete id="delFeedFilterUserInfo" parameterType="java.util.HashMap">
+		delete from yj_feed_filter_user where filter = #{filter}
+	</delete>
+	
+	<!-- 新增用户组关联商会职务 -->
+	<insert id="insertGroupDutiesInfo" parameterType="List">
+		INSERT INTO yj_yy_usergroup_duties (group_id, duties_id)
+		values 
+	    <foreach collection ="list" item ="item" index ="index" separator =","> 
+	       (#{item.id},#{item.dutiesid}) 
+	    </foreach >
+	</insert>
+	<!-- 新增用户组关联用户表 -->
+	<insert id="insertGroupUserInfo" parameterType="List">
+		INSERT INTO yj_yy_usergroup_user (group_id, user_id)
+		values 
+	    <foreach collection ="list" item ="item" index ="index" separator =","> 
+	       (#{item.id},#{item.userid}) 
+	    </foreach >
+	</insert>
+	<!-- 查询有职务的用户组 -->
+	<select id="findUserGroupDuties" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			u.id
+		FROM
+			yj_yy_usergroup u,
+			yj_yy_usergroup_duties d
+		WHERE
+			u.id = d.group_id
+		GROUP BY
+			u.id
+	</select>
+</mapper>

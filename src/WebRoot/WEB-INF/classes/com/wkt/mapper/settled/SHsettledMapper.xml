@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.settled.ISHsettledDao">
+
+	<select id="findSHsettled" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+<!-- 		SELECT id,user_name,mobile,user_address,user_message,image,shanghui,state,update_time,user_id,create_time,audit_opinion FROM yj_shanghui_tmp WHERE 1=1 -->
+		select * from (
+		select '1' as type, id,user_name,mobile,user_address,user_message,image,shanghui,state,update_time,user_id,create_time,audit_opinion FROM yj_shanghui_tmp WHERE  state = 2
+		union ALL
+		select '2' as type, id,user_name,mobile,user_address,user_message,image,shanghui,state,update_time,user_id,create_time,audit_opinion FROM yj_shanghui_tmp WHERE  state in (1,3,4)
+		) a where 1=1
+		<if test="state!=null and state!=''">
+			and state = #{state}
+		</if>
+		<if test="shanghui!=null and shanghui!=''">
+			and shanghui like '%${shanghui}%'
+		</if>
+<!-- 		order by create_time desc -->
+			order by  a.type asc,a.update_time desc ,a.create_time desc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<select id="countSHsettled"  parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*) FROM yj_shanghui_tmp WHERE 1=1
+		<if test="state!=null and state!=''">
+			and state = #{state}
+		</if>
+		<if test="shanghui!=null and shanghui!=''">
+			and shanghui like '%${shanghui}%'
+		</if>
+	</select>
+	
+	<update id="updateSHsettled" parameterType="java.util.HashMap">
+		update yj_shanghui_tmp set user_id=#{user_id} ,update_time=#{update_time},state=#{state}
+		<if test="audit_opinion != null and audit_opinion != ''">
+			,audit_opinion = #{audit_opinion}
+		</if>
+		 where id= #{id}
+	</update>
+	
+	<select id="getSHsettledById" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT id,user_name,mobile,user_address,user_message,image,shanghui,state,update_time,user_id,create_time FROM yj_shanghui_tmp WHERE id=#{id}
+	</select>
+	
+</mapper>

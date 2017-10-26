@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.feed.IFeedDao">
+	<!-- 信息流列表 -->
+	<select id="findFeed" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			f.id,
+			f.title,
+			f.summary,
+			f.image,
+			f.extra,
+			f.obj_id,
+			f.obj_type,
+			f.filter,
+			f.author_id,
+			f.author_name,
+			f.author_type,
+			f.display_type,
+			f.create_time,
+			f.`status`,
+			f.audit_user_id,
+			f.audit_user_name,
+			f.audit_time,
+			f.is_good,
+			f.is_rm,
+			f.is_push_again,
+			${state} state
+		FROM
+			yj_feed f
+		WHERE
+			f.`status` = #{status}
+		<if test="obj_type != null and obj_type != ''">
+			AND f.obj_type IN (${obj_type})
+		</if>
+		<if test="start_time != null and start_time != ''">
+			AND f.create_time >= #{start_time}
+		</if>
+		<if test="end_time != null and end_time != ''">
+			<![CDATA[AND f.create_time <= #{end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND (f.title LIKE '%${title}%'
+				OR f.summary LIKE '%${title}%')
+		</if>
+		<if test="author_type != null and author_type != ''">
+			AND f.author_type = #{author_type}
+		</if>
+		AND f.push_id NOT IN (
+			SELECT
+				t.id
+			FROM
+				yj_feed_push_tmp t
+			WHERE
+				t.is_push_type = 1
+			AND t.is_default = 1
+			AND t.is_extra_push = 0
+			AND t.obj_type NOT IN (1, 4, 5, 10, 13, 14, 18, 19)
+			UNION
+				SELECT
+					pt.id
+				FROM
+					yj_feed_push_tmp pt
+				WHERE
+					pt.is_push_type = 1
+				AND pt.is_default = 0
+				AND pt.is_extra_push = 0
+		)
+		ORDER BY f.audit_time DESC
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 信息流总数 -->
+	<select id="countFeed" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM
+			yj_feed f
+		WHERE
+			f.`status` = #{status}
+		<if test="obj_type != null and obj_type != ''">
+			AND f.obj_type IN (${obj_type})
+		</if>
+		<if test="start_time != null and start_time != ''">
+			AND f.create_time >= #{start_time}
+		</if>
+		<if test="end_time != null and end_time != ''">
+			<![CDATA[AND f.create_time <= #{end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND (f.title LIKE '%${title}%'
+			OR f.summary LIKE '%${title}%')
+		</if>
+		<if test="author_type != null and author_type != ''">
+			AND f.author_type = #{author_type}
+		</if>
+		AND f.push_id NOT IN (
+			SELECT
+				t.id
+			FROM
+				yj_feed_push_tmp t
+			WHERE
+				t.is_push_type = 1
+			AND t.is_default = 1
+			AND t.is_extra_push = 0
+			AND t.obj_type NOT IN (1, 4, 5, 10, 13, 14, 18, 19)
+		)
+	</select>
+	
+	<!-- 未审核列表 -->
+	<select id="findFeedPushTmp" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.obj_id,
+			t.obj_type,
+			t.small_start_time,
+			t.small_end_time,
+			t.big_start_time,
+			t.big_end_time,
+			t.create_time,
+			t.title,
+			t.summary,
+			t.author_id,
+			t.author_name,
+			t.state,
+			t.extra,
+			t.is_push_again
+		FROM
+			yj_feed_push_tmp t
+		WHERE
+			t.is_push_again = 2
+		AND t.is_push_type = 1
+		AND t.state = 2
+		AND t.`status` = 1
+		<if test="obj_type != null and obj_type != ''">
+			AND t.obj_type IN (${obj_type})
+		</if>
+		<if test="start_time != null and start_time != ''">
+			AND t.create_time >= #{start_time}
+		</if>
+		<if test="end_time != null and end_time != ''">
+			<![CDATA[AND t.create_time <= #{end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND (t.title LIKE '%${title}%'
+			OR t.summary LIKE '%${title}%')
+		</if>
+		ORDER BY t.create_time DESC
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 未审核总数 -->
+	<select id="countFeedPushTmp" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) count
+		FROM
+			yj_feed_push_tmp t
+		WHERE
+			t.is_push_again = 2
+		AND t.is_push_type = 1
+		AND t.state = 2
+		AND t.`status` = 1
+		<if test="obj_type != null and obj_type != ''">
+			AND t.obj_type IN (${obj_type})
+		</if>
+		<if test="start_time != null and start_time != ''">
+			AND t.create_time >= #{start_time}
+		</if>
+		<if test="end_time != null and end_time != ''">
+			<![CDATA[AND t.create_time <= #{end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND (t.title LIKE '%${title}%'
+			OR t.summary LIKE '%${title}%')
+		</if>
+	</select>
+	
+	<!-- 删除信息流列表 -->
+	<select id="findDeleteFeed" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			(
+				SELECT
+					f.id,
+					f.title,
+					f.summary,
+					f.obj_id,
+					f.obj_type,
+					f.audit_user_id,
+					f.audit_user_name,
+					f.audit_time,
+					1 state,
+					f.create_time,
+					f.`status`,
+					f.extra,
+					f.is_push_again
+				FROM
+					yj_feed f
+				WHERE
+					f.`status` = 2
+				UNION
+					SELECT
+						t.id,
+						t.title,
+						t.summary,
+						t.obj_id,
+						t.obj_type,
+						t.audit_user_id,
+						t.audit_user_name,
+						t.audit_time,
+						2 state,
+						t.create_time,
+						t.`status`,
+						t.extra,
+						t.is_push_again
+					FROM
+						yj_feed_push_tmp t
+					WHERE
+						t.is_push_again = 2
+					AND t.is_push_type = 1
+					AND t.state = 2
+					AND t.`status` = 2
+			) tab
+		WHERE
+			tab.`status` = 2
+		<if test="obj_type != null and obj_type != ''">
+			AND tab.obj_type IN (${obj_type})
+		</if>
+		<if test="start_time != null and start_time != ''">
+			AND tab.create_time >= #{start_time}
+		</if>
+		<if test="end_time != null and end_time != ''">
+			<![CDATA[AND tab.create_time <= #{end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND (tab.title LIKE '%${title}%'
+			OR tab.summary LIKE '%${title}%')
+		</if>
+		ORDER BY tab.create_time DESC
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 删除信息流列表总数 -->
+	<select id="countDeleteFeed" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) count
+		FROM
+			(
+				SELECT
+					f.id,
+					f.title,
+					f.summary,
+					f.obj_id,
+					f.obj_type,
+					f.audit_user_id,
+					f.audit_user_name,
+					f.audit_time,
+					1 state,
+					f.create_time,
+					f.`status`
+				FROM
+					yj_feed f
+				WHERE
+					f.`status` = 2
+				UNION
+					SELECT
+						t.id,
+						t.title,
+						t.summary,
+						t.obj_id,
+						t.obj_type,
+						t.audit_user_id,
+						t.audit_user_name,
+						t.audit_time,
+						2 state,
+						t.create_time,
+						t.`status`
+					FROM
+						yj_feed_push_tmp t
+					WHERE
+						t.is_push_again = 2
+					AND t.is_push_type = 1
+					AND t.state = 2
+					AND t.`status` = 2
+			) tab
+		WHERE
+			tab.`status` = 2
+		<if test="obj_type != null and obj_type != ''">
+			AND tab.obj_type IN (${obj_type})
+		</if>
+		<if test="start_time != null and start_time != ''">
+			AND tab.create_time >= #{start_time}
+		</if>
+		<if test="end_time != null and end_time != ''">
+			<![CDATA[AND tab.create_time <= #{end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND (tab.title LIKE '%${title}%'
+			OR tab.summary LIKE '%${title}%')
+		</if>
+	</select>
+	
+	<!-- 信息流大、小置顶列表 -->
+	<select id="findFeedTmp" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.feed_id,
+			t.create_time,
+			t.start_time,
+			t.end_time,
+			f.title,
+			f.summary,
+			f.image,
+			f.extra,
+			f.obj_id,
+			f.obj_type,
+			f.filter,
+			f.author_id,
+			f.author_name,
+			f.author_type,
+			f.display_type,
+			f.`status`,
+			f.audit_user_id,
+			f.audit_user_name,
+			f.audit_time,
+			f.is_good,
+			f.is_rm,
+			1 state,
+			f.push_id,
+			f.is_push_again
+		FROM
+			yj_feed f,
+			yj_feed_filter_tmp t
+		WHERE
+			f.id = t.feed_id
+		AND f.`status` = 1
+		AND t.`status` = 1
+		<if test="type != null and type != ''">
+			AND t.type = #{type}
+		</if>
+		<if test="obj_type != null and obj_type != ''">
+			AND f.obj_type IN (${obj_type})
+		</if>
+		<if test="create_start_time != null and create_start_time != ''">
+			AND f.create_time >= #{create_start_time}
+		</if>
+		<if test="create_end_time != null and create_end_time != ''">
+			<![CDATA[AND f.create_time <= #{create_end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND (f.title LIKE '%${title}%'
+				OR f.summary LIKE '%${title}%')
+		</if>
+		GROUP BY f.id
+		ORDER BY f.create_time DESC
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 信息流大、小置顶列表总数 -->
+	<select id="countFeedTmp" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM (
+			SELECT
+				f.id
+			FROM
+				yj_feed f,
+				yj_feed_filter_tmp t
+			WHERE
+				f.id = t.feed_id
+			AND f.`status` = 1
+			AND t.`status` = 1
+			<if test="type != null and type != ''">
+				AND t.type = #{type}
+			</if>
+			<if test="obj_type != null and obj_type != ''">
+				AND f.obj_type IN (${obj_type})
+			</if>
+			<if test="start_time != null and start_time != ''">
+				AND f.create_time >= #{start_time}
+			</if>
+			<if test="end_time != null and end_time != ''">
+				<![CDATA[AND f.create_time <= #{end_time}]]>
+			</if>
+			<if test="title != null and title != ''">
+				AND (f.title LIKE '%${title}%'
+					OR f.summary LIKE '%${title}%')
+			</if>
+			GROUP BY f.id
+		) tab
+	</select>
+	<!-- 修改大、小置顶列表展示时间 -->
+	<update id="updateFeedTmp" parameterType="java.util.HashMap">
+		UPDATE yj_feed_filter_tmp
+		SET feed_id = #{id}
+		 <if test="start_time != null and start_time != ''">
+		 	,start_time = #{start_time}
+		 </if>
+		 <if test="end_time != null and end_time != ''">
+		 	,end_time = #{end_time}
+		 </if>
+		WHERE
+			feed_id = #{id}
+	</update>
+	<!-- 信息流删除恢复接口 -->
+	<update id="updateFeed" parameterType="java.util.HashMap">
+		UPDATE yj_feed
+		SET audit_time = #{audit_time}
+		 <if test="audit_user_id != null and audit_user_id != ''">
+		 	,audit_user_id = #{audit_user_id}
+		 </if>
+		 <if test="audit_user_name != null and audit_user_name != ''">
+		 	,audit_user_name = #{audit_user_name}
+		 </if>
+		 <if test="status != null and status != ''">
+		 	,status = #{status}
+		 </if>
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 信息流条件删除恢复接口 -->
+	<update id="updateFeedFilter" parameterType="java.util.HashMap">
+		UPDATE yj_feed_filter
+		SET status = #{status}
+		<if test="push_time != null and push_time != ''">
+			,create_time = #{push_time}
+			,push_time = #{push_time}
+		</if>
+		WHERE
+			feed_id = #{id}
+	</update>
+	<!-- 信息流大小置顶删除恢复接口 -->
+	<update id="updateFeedFilterTmp" parameterType="java.util.HashMap">
+		UPDATE yj_feed_filter_tmp
+		SET status = #{status}
+		WHERE
+			feed_id = #{id}
+	</update>
+	<!-- 待审核信息流删除恢复接口 -->
+	<update id="updateFeedPushTmp" parameterType="java.util.HashMap">
+		UPDATE yj_feed_push_tmp
+		SET audit_time = #{audit_time}
+		 <if test="audit_user_id != null and audit_user_id != ''">
+		 	,audit_user_id = #{audit_user_id}
+		 </if>
+		 <if test="audit_user_name != null and audit_user_name != ''">
+		 	,audit_user_name = #{audit_user_name}
+		 </if>
+		 <if test="status != null and status != ''">
+		 	,status = #{status}
+		 </if>
+		 <if test="small_start_time != null and small_start_time != ''">
+		 	,small_start_time = #{small_start_time}
+		 </if>
+		 <if test="small_end_time != null and small_end_time != ''">
+		 	,small_end_time = #{small_end_time}
+		 </if>
+		 <if test="big_start_time != null and big_start_time != ''">
+		 	,big_start_time = #{big_start_time}
+		 </if>
+		 <if test="big_end_time != null and big_end_time != ''">
+		 	,big_end_time = #{big_end_time}
+		 </if>
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 查询被推送的用户条件 -->
+	<select id="findFeedTmpInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM(
+			SELECT
+				u.user_id,
+				m.REALNAME user_name,
+				m.COMPANY company,
+				m.COMPANYWORK companywork,
+				(
+					SELECT
+						COUNT(*)
+					FROM
+						yj_feed_filter f
+					WHERE
+						f.feed_id = t.feed_id
+					AND f.filter = CONCAT(u.user_id, '.999')
+					LIMIT 1
+				) count,
+				(
+					SELECT
+						f.create_time
+					FROM
+						yj_feed_filter f
+					WHERE
+						f.feed_id = t.feed_id
+					AND f.filter = CONCAT(u.user_id, '.999')
+					LIMIT 1
+				) push_time
+			FROM
+				yj_feed_filter_tmp t,
+				yj_feed_filter_user u,
+				PRE_AL_MEMBER m
+			WHERE
+				t.feed_id = #{id}
+			AND u.filter = t.filter
+			AND u.user_id = m.USID
+			AND m.AVAILABLE = 0
+			<if test="user_name != null and user_name != ''">
+				AND m.REALNAME LIKE '%${user_name}%'
+			</if>
+		) tab
+		<if test="count != null and count != ''">
+			WHERE tab.count = #{count}
+		</if>
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 查询推送的用户列表 -->
+	<select id="findFeedUserList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM(
+			SELECT
+				u.user_id,
+				m.REALNAME user_name,
+				m.COMPANY company,
+				m.COMPANYWORK companywork,
+				IF (
+					t.type = 2,
+					1,
+					(
+						SELECT
+							COUNT(*)
+						FROM
+							yj_feed_filter f
+						WHERE
+							f.feed_id = t.feed_id
+						AND f.filter = CONCAT(u.user_id, '.999')
+						LIMIT 1
+					)
+				) count,
+		
+			IF (
+				t.type = 2,
+				t.start_time,
+				(
+					SELECT
+						f.create_time
+					FROM
+						yj_feed_filter f
+					WHERE
+						f.feed_id = t.feed_id
+					AND f.filter = CONCAT(u.user_id, '.999')
+					LIMIT 1
+				)
+			) push_time,
+			t.type
+			FROM
+				yj_feed_filter_tmp t,
+				yj_feed_filter_user u,
+				PRE_AL_MEMBER m
+			WHERE
+				t.feed_id = #{id}
+			AND u.filter = t.filter
+			AND u.user_id = m.USID
+			AND m.AVAILABLE = 0
+			<if test="user_name != null and user_name != ''">
+				AND m.REALNAME LIKE '%${user_name}%'
+			</if>
+			GROUP BY u.user_id
+		) tab
+		<if test="count != null and count != ''">
+			WHERE tab.count = #{count}
+		</if>
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 信息流总数 -->
+	<select id="findFeedUserCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*) FROM(
+			SELECT
+				u.user_id,
+				m.REALNAME user_name,
+				m.COMPANY company,
+				m.COMPANYWORK companywork,
+				(
+					SELECT
+						COUNT(*)
+					FROM
+						yj_feed_filter f
+					WHERE
+						f.feed_id = t.feed_id
+					AND f.filter = CONCAT(u.user_id, '.999')
+					LIMIT 1
+				) count,
+				(
+					SELECT
+						f.create_time
+					FROM
+						yj_feed_filter f
+					WHERE
+						f.feed_id = t.feed_id
+					AND f.filter = CONCAT(u.user_id, '.999')
+					LIMIT 1
+				) push_time
+			FROM
+				yj_feed_filter_tmp t,
+				yj_feed_filter_user u,
+				PRE_AL_MEMBER m
+			WHERE
+				t.feed_id = #{id}
+			AND u.filter = t.filter
+			AND u.user_id = m.USID
+			AND m.AVAILABLE = 0
+			<if test="user_name != null and user_name != ''">
+				AND m.REALNAME LIKE '%${user_name}%'
+			</if>
+			GROUP BY u.user_id
+		) tab
+		<if test="count != null and count != ''">
+			WHERE tab.count = #{count}
+		</if>
+	</select>
+	<!-- 查询手机端推送的用户列表 -->
+	<select id="findMobileFeedUserList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM(
+			SELECT
+				u.user_id,
+				m.REALNAME user_name,
+				m.COMPANY company,
+				m.COMPANYWORK companywork,
+				1 count,
+				t.create_time push_time
+			FROM
+				yj_feed_filter t,
+				yj_feed_filter_user u,
+				PRE_AL_MEMBER m
+			WHERE
+				t.feed_id = #{id}
+			AND u.filter = t.filter
+			AND u.user_id = m.USID
+			AND m.AVAILABLE = 0
+			<if test="user_name != null and user_name != ''">
+				AND m.REALNAME LIKE '%${user_name}%'
+			</if>
+			GROUP BY
+				u.user_id
+		) t
+		<if test="count != null and count != ''">
+			WHERE t.count = #{count}
+		</if>
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 查询手机端推送的用户总数 -->
+	<select id="findMobileFeedUserCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*) FROM(
+			SELECT
+				u.user_id,
+				m.REALNAME user_name,
+				m.COMPANY company,
+				m.COMPANYWORK companywork,
+				1 count,
+				t.create_time push_time
+			FROM
+				yj_feed_filter t,
+				yj_feed_filter_user u,
+				PRE_AL_MEMBER m
+			WHERE
+				t.feed_id = #{id}
+			AND u.filter = t.filter
+			AND u.user_id = m.USID
+			AND m.AVAILABLE = 0
+			<if test="user_name != null and user_name != ''">
+				AND m.REALNAME LIKE '%${user_name}%'
+			</if>
+			GROUP BY
+				u.user_id
+		) t
+		<if test="count != null and count != ''">
+			WHERE t.count = #{count}
+		</if>
+	</select>
+	<!-- 查询未审核信息流详情 -->
+	<select id="findPushTmp" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			yj_feed_push_tmp t
+		WHERE
+			t.id = #{id}
+	</select>
+	<!-- 查询信息流详情 -->
+	<select id="findFeedDetail" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			f.id,
+			f.title,
+			f.summary,
+			f.image,
+			f.extra,
+			f.obj_id,
+			f.obj_type,
+			f.filter,
+			f.author_id,
+			f.author_name,
+			f.author_type,
+			f.display_type,
+			f.create_time,
+			f.`status`,
+			f.audit_user_id,
+			f.audit_user_name,
+			f.audit_time,
+			f.is_good,
+			f.is_rm,
+			f.push_id
+		FROM
+			yj_feed f
+		WHERE
+			f.id = #{id}
+	</select>
+	<!-- 查询信息流推送信息 -->
+	<select id="findFeedInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			yj_feed_push_tmp t
+		WHERE
+			t.id = #{feed_id}
+	</select>
+</mapper>

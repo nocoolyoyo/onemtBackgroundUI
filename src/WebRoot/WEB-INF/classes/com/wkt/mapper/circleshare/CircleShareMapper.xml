@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.circleshare.ICircleShareDao">
+	<!-- 获取帖子列表总条数 -->
+	<select id="findShareCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM
+			(
+			SELECT a.*,
+			19 as obj_type,
+			(SELECT GROUP_CONCAT(DISTINCT c.title) FROM yj_circle c WHERE c.id = a.circle_id) circle_title
+			FROM yj_circle_share a
+			) t
+		WHERE
+			t.`status` = #{status}
+		<if test="state != null and state != ''">
+			AND t.state IN (${state})
+		</if>
+		<if test="create_start_time != null and create_start_time != ''">
+			AND t.create_time >= #{create_start_time}
+		</if>
+		<if test="create_end_time != null and create_end_time != ''">
+			<![CDATA[AND t.create_time <= #{create_end_time}]]>
+		</if>
+		<if test="delete_start_time != null and delete_start_time != ''">
+			AND t.audit_time >= #{delete_start_time}
+		</if>
+		<if test="delete_end_time != null and delete_end_time != ''">
+			<![CDATA[AND t.audit_time <= #{delete_end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND t.title LIKE '%${title}%'
+		</if>
+		<if test="circle_title != null and circle_title != ''">
+			AND t.circle_title LIKE '%${circle_title}%'
+		</if>
+	</select>
+	<!-- 获取帖子列表 -->
+	<select id="findShareList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			(
+			SELECT a.*,
+			19 as obj_type,
+			(SELECT GROUP_CONCAT(DISTINCT c.title) FROM yj_circle c WHERE c.id = a.circle_id) circle_title
+			FROM yj_circle_share a
+			) t
+		WHERE
+			t.`status` = #{status}
+		<if test="state != null and state != ''">
+			AND t.state IN (${state})
+		</if>
+		<if test="create_start_time != null and create_start_time != ''">
+			AND t.create_time >= #{create_start_time}
+		</if>
+		<if test="create_end_time != null and create_end_time != ''">
+			<![CDATA[AND t.create_time <= #{create_end_time}]]>
+		</if>
+		<if test="delete_start_time != null and delete_start_time != ''">
+			AND t.audit_time >= #{delete_start_time}
+		</if>
+		<if test="delete_end_time != null and delete_end_time != ''">
+			<![CDATA[AND t.audit_time <= #{delete_end_time}]]>
+		</if>
+		<if test="title != null and title != ''">
+			AND t.title LIKE '%${title}%'
+		</if>
+		<if test="circle_title != null and circle_title != ''">
+			AND t.circle_title LIKE '%${circle_title}%'
+		</if>
+		ORDER BY 
+			t.update_time desc,
+			t.create_time desc
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 查询帖子详情 -->
+	<select id="findShareDetail" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			yj_circle_share s
+		WHERE
+			s.id = #{id}
+	</select>
+	<!-- 审核、删除帖子 -->
+	<update id="auditShare" parameterType="java.util.HashMap">
+		UPDATE yj_circle_share
+		SET audit_type = 2
+		 ,audit_user_id = #{audit_user_id}
+		 <if test="audit_user_name != null and audit_user_name != ''">
+		 	,audit_user_name = #{audit_user_name}
+		 </if>
+		 <if test="audit_time != null and audit_time != ''">
+		 	,audit_time = #{audit_time}
+		 </if>
+		 <if test="update_time != null and update_time != ''">
+		 	,update_time = #{update_time}
+		 	,update_type = 2
+		 </if>
+		 <if test="update_name != null and update_name != ''">
+		 	,update_id = #{update_id}
+		 </if>
+		 <if test="update_name != null and update_name != ''">
+		 	,update_name = #{update_name}
+		 </if>
+		 <if test="audit_opinion != null and audit_opinion != ''">
+		 	,audit_opinion = #{audit_opinion}
+		 </if>
+		 <if test="state != null and state != ''">
+		 	,state = #{state}
+		 </if>
+		 <if test="status != null and status != ''">
+		 	,status = #{status}
+		 </if>
+		 <if test="title != null and title != ''">
+		 	,title = #{title}
+		 </if>
+		 <if test="content != null and content != ''">
+		 	,content = #{content}
+		 </if>
+		 <if test="summary != null">
+			 ,summary = #{summary}
+		 </if>
+		 <if test="circle_id != null and circle_id != ''">
+			 ,circle_id = #{circle_id}
+		 </if>
+		WHERE
+			id IN (${id})
+	</update>
+	<!-- 新增帖子 -->
+	<insert id="insertShare" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO yj_circle_share (
+			circle_id,
+			user_id,
+			create_time,
+			update_time,
+			title,
+			content,
+			author_type
+			<if test="image != null and image != ''">
+				,image
+			</if>
+			<if test="user_name != null and user_name != ''">
+				,user_name
+			</if>
+			,state
+			<if test="summary != null">
+				,summary
+			</if>
+		)
+		VALUES
+			(
+				#{circle_id},
+				#{user_id},
+				#{create_time},
+				#{create_time},
+				#{title},
+				#{content},
+				#{author_type}
+				<if test="image != null and image != ''">
+					,#{image}
+				</if>
+				<if test="user_name != null and user_name != ''">
+					,#{user_name}
+				</if>
+				,#{state}
+				<if test="summary != null">
+					,#{summary}
+				</if>
+			)
+	</insert>
+	<!-- 修改帖子 -->
+	<update id="updateShare" parameterType="java.util.HashMap">
+		UPDATE yj_circle_share
+		SET update_time = #{update_time}
+		 <if test="state != null and state != ''">
+		 	,state = #{state}
+		 </if>
+		 <if test="status != null and status != ''">
+		 	,status = #{status}
+		 </if>
+		 ,update_id = #{update_id}
+		 <if test="update_name != null and update_name != ''">
+		 	,update_name = #{update_name}
+		 </if>
+		 ,update_type = 2
+		 <if test="title != null and title != ''">
+		 	,title = #{title}
+		 </if>
+		 <if test="content != null and content != ''">
+		 	,content = #{content}
+		 </if>
+		 <if test="summary != null">
+			 ,summary = #{summary}
+		 </if>
+		 <if test="circle_id != null and circle_id != ''">
+			 ,circle_id = #{circle_id}
+		 </if>
+		WHERE
+			id = #{id}
+	</update>
+</mapper>

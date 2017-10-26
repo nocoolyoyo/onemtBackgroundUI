@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.role.IRoleDao">
+	
+	<!-- 获取所有角色信息列表 -->
+	<select id="findAllRoleInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.roleid,
+			t.rolename,
+			t.roledesc,
+			t.createtime
+		FROM
+			yj_yy_role t
+		where 1=1 
+		<if test="rolename !=null and rolename !=''">
+			and t.rolename like '%${rolename}%'
+		</if>
+		order by t.createtime desc
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取所有角色信息总数 -->
+	<select id="findAllRoleInfoCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) 
+		FROM
+			yj_yy_role t
+		where 1=1
+		<if test="rolename !=null and rolename !=''">
+			and t.rolename like '%${rolename}%'
+		</if>
+	</select>
+	
+	<!-- 根据角色ID获取角色信息 -->
+	<select id="getRoleInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.roleid,
+			t.rolename,
+			t.roledesc,
+			t.createtime
+		FROM
+			yj_yy_role t
+		where t.roleid = #{roleid}
+	</select>
+	
+	<!-- 新增角色信息 -->
+	<insert id="addRoleInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+		INSERT INTO yj_yy_role (
+			rolename,
+			roledesc,
+			createtime
+		) values (
+			#{rolename},#{roledesc},#{create_time}
+		)
+	</insert>
+	
+	<!-- 修改角色信息 -->
+	<update id="updateRoleInfo" parameterType="java.util.HashMap">
+		update yj_yy_role set rolename = #{rolename}
+		where roleid = #{roleid}
+	</update>
+	
+	<!-- 删除前检查角色是否和用户关联-->
+	<select id="checkUserRole" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(1)
+		FROM
+			yj_yy_user t
+		where t.role_id = #{roleid}
+	</select>
+	
+	<!-- 删除角色信息 -->
+	<update id="delRoleInfo111" parameterType="java.util.HashMap">
+		update yj_yy_role set status=2 where roleid=#{roleid}
+	</update>
+	
+	<delete id="delRoleInfo" parameterType="java.util.HashMap">
+		delete from yj_yy_role where roleid=#{roleid}
+	</delete>
+	
+	<!-- 获取角色菜单列表 -->
+	<select id="getRoleMenuInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			ifnull(t.role_id, '') roleid,
+			ifnull(t.menu_id, '') menuid
+		FROM
+			yj_rolemenu t
+		where t.role_id = #{roleid}
+	</select>
+	
+	<!-- 新增角色菜单权限信息 -->
+	<insert id="addRoleMenuInfo" parameterType="java.util.HashMap">
+		INSERT INTO yj_rolemenu (
+			role_id,
+			menu_id
+		) values (
+			#{roleid},#{menuid}
+		)
+	</insert>
+	
+	<!-- 删除角色菜单权限信息 -->
+	<delete id="delRoleMenuInfo" parameterType="java.util.HashMap">
+		delete from yj_rolemenu where role_id = #{roleid}
+	</delete>
+	
+	<!-- 获取所有角色信息列表 -->
+	<select id="findAllMenuInfoLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.id,t.name,t.fatherid pId
+			,case when(select count(*) from yj_menu s where s.fatherid=t.id and s.status=1)>0
+                     then 'True' 
+										 else 'False' 
+        end isParent
+		  from yj_menu t
+		 where t.status=1
+	</select>
+	
+	<!-- 通过fatherid查询菜单-->
+	<select id="findMenuListsByPid" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.id,t.name,t.fatherid,t.action,t.image,t.`status` status,t.page,t.sort 
+		       ,case when(select count(*) from yj_menu s where s.fatherid=t.id and s.status=1)>0
+                     then 'True' 
+										 else 'False' 
+        end isParent
+		  from yj_menu t
+		 where t.status=1
+		   and t.fatherid=#{fatherid}
+	</select>
+	
+	<!-- 通过fatherid,roleid查询菜单-->
+	<select id="findRoleMenuListsByPid" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select ym.id,ym.`name` name,ym.action,ym.fatherid,ym.image,ym.`status` status,ym.page,ym.sort 
+				,case when(select count(*) from yj_menu s,yj_rolemenu yr where s.fatherid=ym.id and s.id=yr.menu_id and yr.role_id=#{roleid})>0
+                     then 'True' 
+										 else 'False' 
+        		end isParent
+		  from yj_menu ym,yj_rolemenu t
+		 where 1=1
+		   and t.menu_id=ym.id
+		   and t.role_id=#{roleid}
+		   and ym.fatherid=#{fatherid}
+		   and ym.status=1
+	</select>
+</mapper>

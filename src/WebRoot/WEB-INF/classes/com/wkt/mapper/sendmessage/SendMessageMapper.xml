@@ -1,0 +1,737 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.sendmessage.ISendMessageDao">
+	
+	<!-- 获取短信信息列表 -->
+	<select id="findSendMessageLists" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.message_id,
+			t.message_content,
+			t.message_send_time,
+			t.state,
+			t.`status`,
+			t.send_status,
+			t.audit_time,
+			t.audit_user_id,
+			t.audit_user_name,
+			t.author_id,
+			t.author_name,
+			t.create_time
+		FROM
+			yj_send_message t
+		WHERE 1=1
+		<if test="status !=null and status !=''">
+			and t.status = #{status}
+		</if>
+		<if test="state !=null and state !=''">
+			and t.state = #{state}
+		</if>
+		<if test="send_status !=null and send_status !=''">
+			and t.send_status = #{send_status}
+		</if>
+		<if test="start_message_send_time != null and start_message_send_time != ''">
+			and t.message_send_time >=#{start_message_send_time}
+		</if>
+		<if test="end_message_send_time !=null and end_message_send_time !=''">
+			<![CDATA[ and t.message_send_time <=#{end_message_send_time} ]]> 
+		</if>
+		<if test="start_create_time != null and start_create_time != ''">
+			and t.create_time >=#{start_create_time}
+		</if>
+		<if test="end_create_time !=null and end_create_time !=''">
+			<![CDATA[ and t.create_time <=#{end_create_time} ]]> 
+		</if>
+		<if test="message_content !=null and message_content !=''">
+			and t.message_content like '%${message_content}%'
+		</if>
+		<if test="author_name !=null and author_name !=''">
+			and t.author_name like '%${author_name}%'
+		</if>
+
+			order by t.audit_time desc , t.create_time desc
+
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 获取短信信息列表总数 -->
+	<select id="findSendMessageListsCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*)
+		FROM
+			yj_send_message t
+		WHERE 1=1
+		<if test="status !=null and status !=''">
+			and t.status = #{status}
+		</if>
+		<if test="state !=null and state !=''">
+			and t.state = #{state}
+		</if>
+		<if test="send_status !=null and send_status !=''">
+			and t.send_status = #{send_status}
+		</if>
+		<if test="start_message_send_time != null and start_message_send_time != ''">
+			and t.message_send_time >=#{start_message_send_time}
+		</if>
+		<if test="end_message_send_time !=null and end_message_send_time !=''">
+			<![CDATA[ and t.message_send_time <=#{end_message_send_time} ]]> 
+		</if>
+		<if test="start_create_time != null and start_create_time != ''">
+			and t.create_time >=#{start_create_time}
+		</if>
+		<if test="end_create_time !=null and end_create_time !=''">
+			<![CDATA[ and t.create_time <=#{end_create_time} ]]> 
+		</if>
+		<if test="message_content !=null and message_content !=''">
+			and t.message_content like '%${message_content}%'
+		</if>
+		<if test="author_name !=null and author_name !=''">
+			and t.author_name like '%${author_name}%'
+		</if>
+	
+	</select>
+	
+	<!-- 新增短信信息 -->
+	<insert id="addSendMessageInfo" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="message_id">
+		INSERT INTO yj_send_message (
+			author_id,
+			author_name,
+			create_time,
+			audit_user_id,
+			audit_user_name,
+			audit_time,
+			status
+			<if test="message_content != null and message_content != ''">
+				,message_content
+			</if>
+			<if test="message_send_time != null and message_send_time != ''">
+				,message_send_time
+			</if>
+			<if test="sh_ids != null and sh_ids != ''">
+				,sh_ids
+			</if>
+			<if test="sh_names != null and sh_names != ''">
+				,sh_names
+			</if>
+			<if test="industry_ids != null and industry_ids != ''">
+				,industry_ids
+			</if>
+			<if test="industry_names != null and industry_names != ''">
+				,industry_names
+			</if>
+			<if test="region_ids != null and region_ids != ''">
+				,region_ids
+			</if>
+			<if test="region_names != null and region_names != ''">
+				,region_names
+			</if>
+			<if test="nativeplace_ids != null and nativeplace_ids != ''">
+				,nativeplace_ids
+			</if>
+			<if test="nativeplace_names != null and nativeplace_names != ''">
+				,nativeplace_names
+			</if>
+			<if test="usergroup_ids != null and usergroup_ids != ''">
+				,usergroup_ids
+			</if>
+			<if test="usergroup_names != null and usergroup_names != ''">
+				,usergroup_names
+			</if>
+			<if test="user_ids != null and user_ids != ''">
+				,user_ids
+			</if>
+			<if test="user_names != null and user_names != ''">
+				,user_names
+			</if>
+			<if test="circle_ids != null and circle_ids != ''">
+				,circle_ids
+			</if>
+			<if test="circle_names != null and circle_names != ''">
+				,circle_names
+			</if>
+			<if test="all_user != null and all_user != ''">
+				,all_user
+			</if>
+		) values (
+			#{author_id},
+			#{author_name},
+			#{create_time},
+			#{author_id},
+			#{author_name},
+			#{create_time},
+			1
+			<if test="message_content != null and message_content != ''">
+				,#{message_content}
+			</if>
+			<if test="message_send_time != null and message_send_time != ''">
+				,#{message_send_time}
+			</if>
+			<if test="sh_ids != null and sh_ids != ''">
+				,#{sh_ids}
+			</if>
+			<if test="sh_names != null and sh_names != ''">
+				,#{sh_names}
+			</if>
+			<if test="industry_ids != null and industry_ids != ''">
+				,#{industry_ids}
+			</if>
+			<if test="industry_names != null and industry_names != ''">
+				,#{industry_names}
+			</if>
+			<if test="region_ids != null and region_ids != ''">
+				,#{region_ids}
+			</if>
+			<if test="region_names != null and region_names != ''">
+				,#{region_names}
+			</if>
+			<if test="nativeplace_ids != null and nativeplace_ids != ''">
+				,#{nativeplace_ids}
+			</if>
+			<if test="nativeplace_names != null and nativeplace_names != ''">
+				,#{nativeplace_names}
+			</if>
+			<if test="usergroup_ids != null and usergroup_ids != ''">
+				,#{usergroup_ids}
+			</if>
+			<if test="usergroup_names != null and usergroup_names != ''">
+				,#{usergroup_names}
+			</if>
+			<if test="user_ids != null and user_ids != ''">
+				,#{user_ids}
+			</if>
+			<if test="user_names != null and user_names != ''">
+				,#{user_names}
+			</if>
+			<if test="circle_ids != null and circle_ids != ''">
+				,#{circle_ids}
+			</if>
+			<if test="circle_names != null and circle_names != ''">
+				,#{circle_names}
+			</if>
+			<if test="all_user != null and all_user != ''">
+				,#{all_user}
+			</if>
+		)
+	</insert>
+	
+	<!-- 修改短信信息 -->
+	<update id="updateSendMessageInfo" parameterType="java.util.HashMap">
+		update yj_send_message set 
+		audit_user_id = #{audit_user_id},
+		audit_user_name = #{audit_user_name},
+		audit_time = #{audit_time}
+		<if test="message_content != null and message_content != ''">
+			,message_content = #{message_content}
+		</if>
+		<if test="message_send_time != null and message_send_time != ''">
+			,message_send_time = #{message_send_time}
+		</if>
+		<if test="sh_ids != null and sh_ids != ''">
+			,sh_ids = #{sh_ids}
+		</if>
+		<if test="sh_names != null and sh_names != ''">
+			,sh_names = #{sh_names}
+		</if>
+		<if test="industry_ids != null and industry_ids != ''">
+			,industry_ids = #{industry_ids}
+		</if>
+		<if test="industry_names != null and industry_names != ''">
+			,industry_names = #{industry_names}
+		</if>
+		<if test="region_ids != null and region_ids != ''">
+			,region_ids = #{region_ids}
+		</if>
+		<if test="region_names != null and region_names != ''">
+			,region_names = #{region_names}
+		</if>
+		<if test="nativeplace_ids != null and nativeplace_ids != ''">
+			,nativeplace_ids = #{nativeplace_ids}
+		</if>
+		<if test="nativeplace_names != null and nativeplace_names != ''">
+			,nativeplace_names = #{nativeplace_names}
+		</if>
+		<if test="usergroup_ids != null and usergroup_ids != ''">
+			,usergroup_ids = #{usergroup_ids}
+		</if>
+		<if test="usergroup_names != null and usergroup_names != ''">
+			,usergroup_names = #{usergroup_names}
+		</if>
+		<if test="user_ids != null and user_ids != ''">
+			,user_ids = #{user_ids}
+		</if>
+		<if test="user_names != null and user_names != ''">
+			,user_names = #{user_names}
+		</if>
+		<if test="circle_ids != null and circle_ids != ''">
+			,circle_ids = #{circle_ids}
+		</if>
+		<if test="circle_names != null and circle_names != ''">
+			,circle_names = #{circle_names}
+		</if>
+		<if test="all_user != null and all_user != ''">
+			,all_user = #{all_user}
+		</if>
+		<if test="state != null and state != ''">
+			,state = #{state}
+		</if>
+		where message_id = #{message_id}
+	</update>
+	
+	
+	
+	<!-- 删除/恢复/审核/马上发送短信信息 -->
+	<update id="sendordelSendMessageInfo" parameterType="java.util.HashMap">
+		update yj_send_message set 
+		audit_user_id = #{audit_user_id},
+		audit_user_name = #{audit_user_name},
+		audit_time = #{audit_time}
+		<if test="message_send_time != null and message_send_time != ''">
+		    ,message_send_time = #{message_send_time}
+		</if>
+		<if test="send_status !=null and send_status !=''">
+			,send_status = #{send_status}
+		</if>
+		<if test="status != null and status != ''">
+		    ,status = #{status}
+		</if>
+		<if test="state != null and state != ''">
+		    ,state = #{state}
+		</if>
+		where message_id = #{message_id} 
+	</update>
+	
+	<update id="updateSendMessageInfoByAnnotation" parameterType="java.util.HashMap">
+		update yj_send_message set send_status = #{send_status} where message_id = #{message_id}
+	</update>
+	
+	<!-- 根据ID获取短信信息 -->
+	<select id="findSendMessageInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from yj_send_message t where  t.message_id = #{message_id}
+	</select>
+	
+	<!-- 查看推送用户信息列表 -->
+	<select id="findSendMessageMemberList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select b.usid,b.realname,b.company,b.companywork,b.mobile, '2' as reportstatus from (
+			SELECT
+				*
+			FROM
+				PRE_AL_MEMBER p
+			WHERE
+				p.usid IN (
+					SELECT
+						cu.usid
+					FROM
+						PRE_COMMON_USER_INDUSTRY cu,
+						yj_send_message t
+					WHERE
+						cu.STATE = 1
+						AND LOCATE(
+								CONCAT(',', cu.industry, ','),
+								CONCAT(',', t.industry_names, ',')
+							) > 0
+					<if test="message_id !=null and message_id != ''">
+						and t.message_id = #{message_id}
+					</if>
+
+				)
+			UNION ALL
+				SELECT
+					*
+				FROM
+					PRE_AL_MEMBER pp
+				WHERE
+					pp.username IN (
+						SELECT
+							ps.username
+						FROM
+							PRE_AL_SHMEMBER ps,
+							yj_send_message tt
+						WHERE 1=1
+							<if test="message_id !=null and message_id != ''">
+								and tt.message_id = #{message_id}
+							</if>
+
+						AND LOCATE(
+							CONCAT(',', ps.shanghuiid, ','),
+							CONCAT(',', tt.sh_ids, ',')
+						) > 0
+					)
+				UNION ALL
+					SELECT
+						*
+					FROM
+						PRE_AL_MEMBER ppp
+					WHERE
+						ppp.usid IN (
+							SELECT
+								yc.user_id
+							FROM
+								yj_circle_user yc,
+								yj_send_message ttt
+							WHERE 1=1
+								<if test="message_id !=null and message_id != ''">
+									and ttt.message_id = #{message_id}
+								</if>
+							AND yc. STATUS = 1
+							AND LOCATE(
+								CONCAT(',', yc.circle_id, ','),
+								CONCAT(',', ttt.circle_ids, ',')
+							) > 0
+						)
+			UNION ALL 
+				SELECT
+						*
+					FROM
+						PRE_AL_MEMBER pppp
+					WHERE
+						pppp.usid IN (
+							SELECT
+								yu.user_id
+							FROM
+								yj_yy_usergroup_user yu,
+								yj_send_message tttt
+							WHERE 1=1
+								<if test="message_id !=null and message_id != ''">
+									and tttt.message_id = #{message_id}
+								</if>
+							AND LOCATE(
+								CONCAT(',', yu.group_id, ','),
+								CONCAT(',', tttt.usergroup_ids, ',')
+							) > 0
+						)
+			UNION ALL
+				select a.* from PRE_AL_MEMBER a,yj_send_message tf where 1=1
+				
+				<if test="message_id !=null and message_id != ''">
+					and tf.message_id = #{message_id}
+				</if>
+				
+				and  LOCATE(
+								CONCAT(',', a.usid, ','),
+								CONCAT(',', tf.user_ids, ',')
+							) > 0
+			UNION ALL
+				select r.* from PRE_AL_MEMBER r,yj_send_message rtf where 1=1
+				
+				<if test="message_id !=null and message_id != ''">
+					and rtf.message_id = #{message_id}
+				</if>
+				
+				and  LOCATE(
+								CONCAT(',', r.RESIDE_ID, ','),
+								CONCAT(',', rtf.region_ids, ',')
+							) > 0
+			UNION ALL
+				select n.* from PRE_AL_MEMBER n,yj_send_message ntf where 1=1
+				
+				<if test="message_id !=null and message_id != ''">
+					and ntf.message_id = #{message_id}
+				</if>
+				
+				and  LOCATE(
+								CONCAT(',', n.NATIVEINFO_ID, ','),
+								CONCAT(',', ntf.nativeplace_ids, ',')
+							) > 0
+			) b where 1=1
+			<if test="realname != null and realname != ''">
+				and b.realname like '%${realname}%'
+			</if>
+			 group by b.mobile 
+			 <if test="y != null and y != '' and y != 0">
+				LIMIT ${x},${y}
+			</if>
+			
+	</select>
+	
+	<!-- 查看推送用户信息总数 -->
+	<select id="findSendMessageMemberListCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*) from
+		( select b.*
+		FROM
+			(
+				SELECT
+				*
+			FROM
+				PRE_AL_MEMBER p
+			WHERE
+				p.usid IN (
+					SELECT
+						cu.usid
+					FROM
+						PRE_COMMON_USER_INDUSTRY cu,
+						yj_send_message t
+					WHERE
+						cu.STATE = 1
+						AND LOCATE(
+								CONCAT(',', cu.industry, ','),
+								CONCAT(',', t.industry_names, ',')
+							) > 0
+					<if test="message_id !=null and message_id != ''">
+						and t.message_id = #{message_id}
+					</if>
+
+				)
+			UNION ALL
+				SELECT
+					*
+				FROM
+					PRE_AL_MEMBER pp
+				WHERE
+					pp.username IN (
+						SELECT
+							ps.username
+						FROM
+							PRE_AL_SHMEMBER ps,
+							yj_send_message tt
+						WHERE 1=1
+							<if test="message_id !=null and message_id != ''">
+								and tt.message_id = #{message_id}
+							</if>
+
+						AND LOCATE(
+							CONCAT(',', ps.shanghuiid, ','),
+							CONCAT(',', tt.sh_ids, ',')
+						) > 0
+					)
+				UNION ALL
+					SELECT
+						*
+					FROM
+						PRE_AL_MEMBER ppp
+					WHERE
+						ppp.usid IN (
+							SELECT
+								yc.user_id
+							FROM
+								yj_circle_user yc,
+								yj_send_message ttt
+							WHERE 1=1
+								<if test="message_id !=null and message_id != ''">
+									and ttt.message_id = #{message_id}
+								</if>
+							AND yc. STATUS = 1
+							AND LOCATE(
+								CONCAT(',', yc.circle_id, ','),
+								CONCAT(',', ttt.circle_ids, ',')
+							) > 0
+						)
+			UNION ALL 
+				SELECT
+						*
+					FROM
+						PRE_AL_MEMBER pppp
+					WHERE
+						pppp.usid IN (
+							SELECT
+								yu.user_id
+							FROM
+								yj_yy_usergroup_user yu,
+								yj_send_message tttt
+							WHERE 1=1
+								<if test="message_id !=null and message_id != ''">
+									and tttt.message_id = #{message_id}
+								</if>
+							AND LOCATE(
+								CONCAT(',', yu.group_id, ','),
+								CONCAT(',', tttt.usergroup_ids, ',')
+							) > 0
+						)
+			UNION ALL
+				select a.* from PRE_AL_MEMBER a,yj_send_message tf where 1=1
+				
+				<if test="message_id !=null and message_id != ''">
+					and tf.message_id = #{message_id}
+				</if>
+				
+				and  LOCATE(
+								CONCAT(',', a.usid, ','),
+								CONCAT(',', tf.user_ids, ',')
+							) > 0
+			UNION ALL
+				select r.* from PRE_AL_MEMBER r,yj_send_message rtf where 1=1
+				
+				<if test="message_id !=null and message_id != ''">
+					and rtf.message_id = #{message_id}
+				</if>
+				
+				and  LOCATE(
+								CONCAT(',', r.RESIDE_ID, ','),
+								CONCAT(',', rtf.region_ids, ',')
+							) > 0
+			UNION ALL
+				select n.* from PRE_AL_MEMBER n,yj_send_message ntf where 1=1
+				
+				<if test="message_id !=null and message_id != ''">
+					and ntf.message_id = #{message_id}
+				</if>
+				
+				and  LOCATE(
+								CONCAT(',', n.NATIVEINFO_ID, ','),
+								CONCAT(',', ntf.nativeplace_ids, ',')
+							) > 0
+			) b
+		WHERE
+			1 = 1
+			<if test="realname != null and realname != ''">
+				and b.realname like '%${realname}%'
+			</if>
+		GROUP BY
+			b.mobile 
+		) m
+	</select>
+	
+	<!-- 查看推送用户信息列表 -->
+	<select id="findAllSendMessageMemberList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.usid,t.realname,t.company,t.companywork,t.mobile,DATE_FORMAT(t.createdate,'%Y-%m-%d %H:%i:%s') createdate,'2' as reportstatus from PRE_AL_MEMBER t where 1=1 and t.AVAILABLE in (0,1)
+		<if test="realname != null and realname != ''">
+				and t.realname like '%${realname}%'
+		</if>
+		group by t.mobile
+		<if test="y != null and y != '' and y != 0">
+				LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 查看推送用户信息总数 -->
+	<select id="findAllSendMessageMemberListCount" parameterType="java.util.HashMap" resultType="Integer">
+		select count(*) from PRE_AL_MEMBER t where 1=1 and t.AVAILABLE in (0,1)
+		<if test="realname != null and realname != ''">
+			and t.realname like '%${realname}%'
+		</if>
+		group by t.mobile
+	</select>
+	
+	<!-- 查询商会跟系统发送的短信信息 -->
+	<select id="findSHSendMessageList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select t.*,ps.SHNAME from PRE_COMMON_SMS t LEFT JOIN PRE_COMMON_SHANGHUI ps ON t.SHANGHUIID = ps.SHID
+		where 1=1
+		<if test="SHNAME != null and SHNAME !=''">
+			and ps.SHNAME like '%${SHNAME}%'
+		</if>
+		<if test="START_SENDTIME != null and START_SENDTIME != ''">
+			<![CDATA[AND UNIX_TIMESTAMP(t.SENDTIME)*1000  >= #{START_SENDTIME}]]>
+		</if>
+		<if test="END_SENDTIME != null and END_SENDTIME != ''">
+			<![CDATA[AND UNIX_TIMESTAMP(t.SENDTIME)*1000  <= #{END_SENDTIME}]]>
+		</if>
+		<if test="SMSMSG != null and SMSMSG != ''">
+			and t.SMSMSG like '%${SMSMSG}%'
+		</if>
+			order by t.SENDTIME desc
+
+		<if test="y != null and y != '' and y != 0">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	
+	<!-- 查询商会跟系统发送的短信信息总数 -->
+	<select id="findSHSendMessageListCount" parameterType="java.util.HashMap" resultType="Integer">
+		select count(*) from PRE_COMMON_SMS t LEFT JOIN PRE_COMMON_SHANGHUI ps ON t.SHANGHUIID = ps.SHID
+		where 1=1
+		<if test="SHNAME != null and SHNAME !=''">
+			and ps.SHNAME like '%${SHNAME}%'
+		</if>
+		<if test="START_SENDTIME != null and START_SENDTIME != ''">
+			<![CDATA[AND UNIX_TIMESTAMP(t.SENDTIME)*1000  >= #{START_SENDTIME}]]>
+		</if>
+		<if test="END_SENDTIME != null and END_SENDTIME != ''">
+			<![CDATA[AND UNIX_TIMESTAMP(t.SENDTIME)*1000  <= #{END_SENDTIME}]]>
+		</if>
+		<if test="SMSMSG != null and SMSMSG != ''">
+			and t.SMSMSG like '%${SMSMSG}%'
+		</if>
+			
+	</select>
+	
+	<!-- 查看商会发送的短信用户列表 -->
+	<select id="findSHSendMessageMemberList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.usid,
+			t.realname,
+			t.company,
+			t.companywork,
+			t.mobile,
+			DATE_FORMAT(
+				t.createdate,
+				'%Y-%m-%d %H:%i:%s'
+			) createdate,
+			p.REPORTSTATUS reportstatus
+		FROM
+			PRE_AL_MEMBER t , pre_common_smsreportstatus p
+		WHERE
+			t.MOBILE = p.DESTMOBILE
+			and p.SMSID = #{SMSID} and type = #{type}
+		<if test="realname != null and realname != ''">
+				and t.realname like '%${realname}%'
+		</if>
+		<if test="y != null and y != '' and y != 0">
+				LIMIT ${x},${y}
+		</if>	
+	</select>
+	
+	<!-- 查看商会发送的短信用户列表总数 -->
+	<select id="findSHSendMessageMemberListCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			count(*)
+		FROM
+			PRE_AL_MEMBER t , pre_common_smsreportstatus p
+		WHERE
+			t.MOBILE = p.DESTMOBILE
+			and p.SMSID = #{SMSID} and type = #{type}
+		<if test="realname != null and realname != ''">
+				and t.realname like '%${realname}%'
+		</if>
+	</select>
+	
+	<!-- 获取商会发送短信的配置信息 -->
+	<select id="findSHSendMessageConfigInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from PRE_COMMON_SMSCONFIG t where t.SHID = #{SHID}
+	</select>
+	
+	<!-- 修改短信配置信息中的已发数量跟剩余数量 -->
+	<update id="updateSHSendMessageConfigInfo" parameterType="java.util.HashMap">
+		update PRE_COMMON_SMSCONFIG set SMSUSEDCOUNTS = #{SMSUSEDCOUNTS},SMSREMAINCOUNTS = #{SMSREMAINCOUNTS} where CFID = #{CFID}
+	</update>
+	
+	<!-- 新增短信发送回执信息 -->
+	<insert id="insertSmsReportStatus" parameterType="java.util.List">
+		INSERT INTO pre_common_smsreportstatus (
+				MSGID,
+				DESTMOBILE,
+				REPORTSTATUS,
+				REPORTRECVTIME,
+				SMSID,
+				type
+			)
+		VALUES
+			<foreach collection="list" item="item" index="index" separator="," >
+			(
+				#{item.MSGID},
+				#{item.DESTMOBILE},
+				#{item.REPORTSTATUS},
+				now(),
+				#{item.SMSID},
+				#{item.type}
+			)
+			</foreach>
+	</insert>
+	
+	<!-- 获取待发送短信的信息列表 -->
+	<select id="findLaterSendMessageList"  resultType="java.util.HashMap">
+		SELECT
+			t.*
+		FROM
+			yj_send_message t
+		WHERE
+			t.send_status = 2
+			and t.status = 1
+			and t.state = 1
+		AND DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i') >= FROM_UNIXTIME(
+			t.message_send_time / 1000,
+			'%Y-%m-%d %H:%i'
+		)
+	</select>
+	
+</mapper>

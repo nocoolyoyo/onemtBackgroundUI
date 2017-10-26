@@ -1,0 +1,1797 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wkt.dao.circle.ICircleDao">
+	<!-- 获取圈子列表总条数 -->
+	<select id="findCircleCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM
+			yj_circle c
+		WHERE
+			c.`status` = #{status}
+		<if test="state != null and state != ''">
+			AND c.state IN (${state})
+		</if>
+		<if test="title != null and title != ''">
+			AND c.title LIKE '%${title}%'
+		</if>
+		<if test="create_start_time != null and create_start_time != ''">
+			AND c.create_time >= #{create_start_time}
+		</if>
+		<if test="create_end_time != null and create_end_time != ''">
+			<![CDATA[AND c.create_time <= #{create_end_time}]]>
+		</if>
+	</select>
+	<!-- 获取圈子列表 -->
+	<select id="findCircleList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			c.id,
+			c.title,
+			c.logo,
+			c.brief,
+			c.brief summary,
+			IFNULL(
+				(
+					SELECT
+						u.user_id
+					FROM
+						yj_circle_role r,
+						yj_circle_user u
+					WHERE
+						r.`status` = 1
+					AND r.circle_id = c.id
+					AND r.dictionaries_id = 1
+					AND u.`status` = 1
+					AND r.id = u.role_id
+					LIMIT 1
+				),
+				0
+			) circle_zhu_id,
+			IFNULL(
+				(
+					SELECT
+						u.user_name
+					FROM
+						yj_circle_role r,
+						yj_circle_user u
+					WHERE
+						r.`status` = 1
+					AND r.circle_id = c.id
+					AND r.dictionaries_id = 1
+					AND u.`status` = 1
+					AND r.id = u.role_id
+					LIMIT 1
+				),
+				''
+			) circle_zhu_name,
+			c.master_id,
+			c.master_name,
+			c.create_time,
+			c.master_id,
+			c.master_name,
+			c.user_type,
+			c.audit_user_id,
+			c.audit_user_name,
+			c.audit_time,
+			c.audit_opinion,
+			c.state,
+			c.update_user_id,
+			c.update_user_name,
+			c.update_time,
+			c.id obj_id,
+			11 obj_type
+		FROM
+			yj_circle c
+		WHERE
+			c.`status` = #{status}
+		<if test="state != null and state != ''">
+			AND c.state IN (${state})
+		</if>
+		<if test="title != null and title != ''">
+			AND c.title LIKE '%${title}%'
+		</if>
+		<if test="create_start_time != null and create_start_time != ''">
+			AND c.create_time >= #{create_start_time}
+		</if>
+		<if test="create_end_time != null and create_end_time != ''">
+			<![CDATA[AND c.create_time <= #{create_end_time}]]>
+		</if>
+		<if test="update_start_time != null and update_start_time != ''">
+			AND c.audit_time >= #{update_start_time}
+		</if>
+		<if test="update_end_time != null and update_end_time != ''">
+			<![CDATA[AND c.audit_time <= #{update_end_time}]]>
+		</if>
+		<if test = "status == 2 ">
+			order by c.update_time desc
+		</if>
+		<if test = "status == 1 ">
+			ORDER BY c.create_time DESC
+		</if>
+		
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 通过circleids查询圈子列表 -->
+	<select id="findCircleByCircleids" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+ 		select DISTINCT c.id,c.title from yj_circle c where c.state = 1 and c.`status` = 1 and c.id in (${circle_nr_ids}) 
+<!-- 		SELECT DISTINCT -->
+<!-- 			c.id, -->
+<!-- 			c.title -->
+<!-- 		FROM -->
+<!-- 			yj_circle c -->
+<!-- 		WHERE -->
+<!-- 			c.state = 1 -->
+<!-- 		AND c.`status` = 1 -->
+<!-- 		and LOCATE(CONCAT(',',c.id,','),CONCAT(',',#{circle_nr_ids},','))>0 -->
+		
+	</select>
+	<!-- 查询推荐圈子列表 -->
+	<select id="findCircleMemberUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			GROUP_CONCAT(t.user_name) circle_member
+		FROM
+			(
+				SELECT
+					u.user_name
+				FROM
+					yj_circle_role r,
+					yj_circle_user u
+				WHERE
+					r.`status` = 1
+				AND r.circle_id = #{id}
+				<![CDATA[AND r.dictionaries_id <> 1]]>
+				AND u.`status` = 1
+				AND r.id = u.role_id
+				UNION
+					SELECT
+						u.user_name
+					FROM
+						yj_circle_user u
+					WHERE
+						u.circle_id = #{id}
+					AND role_id = 0
+			) t
+	</select>
+	<!-- 查询推荐圈子列表 -->
+	<select id="findTjCircleList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			c.id,
+			c.title,
+			c.is_rm,
+			c.logo,
+			c.description
+		FROM
+			yj_circle c
+		WHERE
+			c.state = 1
+		AND c.`status` = 1
+		AND c.is_rm != 0
+		order by c.is_rm
+	</select>
+	<!-- 查询圈子详情 -->
+	<select id="findCircleDetail" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			c.id,
+			c.logo,
+			c.title,
+			c.master_id,
+			c.master_name,
+			(
+				SELECT
+					m.IMAGE
+				FROM
+					PRE_AL_MEMBER m
+				WHERE
+					m.AVAILABLE = 0
+				AND m.USID = c.master_id
+			) apply_user_avatar,
+			(
+				SELECT
+					m.MOBILE
+				FROM
+					PRE_AL_MEMBER m
+				WHERE
+					m.AVAILABLE = 0
+				AND m.USID = c.master_id
+			) apply_mobile,
+			(
+				SELECT
+					m.COMPANY
+				FROM
+					PRE_AL_MEMBER m
+				WHERE
+					m.AVAILABLE = 0
+				AND m.USID = c.master_id
+			) apply_company,
+			(
+				SELECT
+					m.COMPANYWORK
+				FROM
+					PRE_AL_MEMBER m
+				WHERE
+					m.AVAILABLE = 0
+				AND m.USID = c.master_id
+			) apply_companywork,
+			IFNULL(c.description,'') description,
+			IFNULL(c.brief,'') brief,
+			IFNULL(c.rule, '') rule,
+			IFNULL(
+				(
+					SELECT
+						u.user_id
+					FROM
+						yj_circle_role r,
+						yj_circle_user u
+					WHERE
+						r.`status` = 1
+					AND r.circle_id = c.id
+					AND r.dictionaries_id = 1
+					AND u.`status` = 1
+					AND r.id = u.role_id
+					LIMIT 1
+				),
+				0
+			) circle_zhu_id,
+			IFNULL(
+				(
+					SELECT
+						u.user_name
+					FROM
+						yj_circle_role r,
+						yj_circle_user u
+					WHERE
+						r.`status` = 1
+					AND r.circle_id = c.id
+					AND r.dictionaries_id = 1
+					AND u.`status` = 1
+					AND r.id = u.role_id
+					LIMIT 1
+				),
+				''
+			) circle_zhu_name
+		FROM
+			yj_circle c
+		WHERE
+			c.id = #{id}
+	</select>
+	<!-- 查询圈子成员列表 -->
+	<select id="circleMemberList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			u.user_id,
+			u.user_name
+		FROM
+			yj_circle_user u
+		WHERE
+			u.`status` = 1
+		AND u.circle_id = #{id}
+		GROUP BY
+			user_id
+	</select>
+	<!-- 审核圈子 -->
+	<update id="auditCircle" parameterType="java.util.HashMap">
+		UPDATE yj_circle
+		SET `status` = #{status}
+		 <if test="state != null and state != ''">
+			,state = #{state}
+		 </if>
+		 <if test="audit_opinion != null and audit_opinion != ''">
+		 	,audit_opinion = #{audit_opinion}
+		 </if>
+		 ,audit_user_id = #{audit_user_id}
+		 ,audit_user_name = #{audit_user_name}
+		 ,audit_time = #{audit_time}
+		 <if test = "update_user_id != null and update_user_id != ''">
+		 	,update_user_id = #{update_user_id}
+		 </if>
+		  <if test = "update_user_name != null and update_user_name != ''">
+		  	,update_user_name = #{update_user_name}
+		 
+		  </if>
+		  <if test = " update_time != null and update_time != ''">
+		  	,update_time = #{update_time}
+		  </if>
+		 
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 修改原有推荐圈子为普通圈子 -->
+	<update id="updateOldTjCircle" parameterType="java.util.HashMap">
+		UPDATE yj_circle
+		SET is_rm = 0
+		WHERE
+			is_rm = #{is_rm}
+	</update>
+	<!-- 新增新的推荐圈子 -->
+	<update id="updateNewTjCircle" parameterType="java.util.HashMap">
+		UPDATE yj_circle
+		SET is_rm = #{is_rm}
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 新增圈子 -->
+	<insert id="insertCircle" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO yj_circle (
+			title
+			,logo
+			<if test="description != null and description != ''">
+				,description
+			</if>
+			<if test="brief != null and brief != ''">
+				,brief
+			</if>
+			<if test="rule != null and rule != ''">
+				,rule
+			</if>
+			,master_id
+			<if test="master_name != null and master_name != ''">
+				,master_name
+			</if>
+			,create_time
+			,`status`
+			,state
+		)
+		VALUES
+			(
+				#{title}
+				,#{logo}
+				<if test="description != null and description != ''">
+					,#{description}
+				</if>
+				<if test="brief != null and brief != ''">
+					,#{brief}
+				</if>
+				<if test="rule != null and rule != ''">
+					,#{rule}
+				</if>
+				,#{master_id}
+				<if test="master_name != null and master_name != ''">
+					,#{master_name}
+				</if>
+				,#{create_time}
+				,1
+				,1
+			)
+	</insert>
+	<!-- 新增圈主角色 -->
+	<insert id="insertCircleRole" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO yj_circle_role (
+			circle_id,
+			`name`,
+			create_time,
+			`status`,
+			dictionaries_id,
+			create_user_id,
+			sort,
+			user_type
+		)
+		VALUES
+			(
+				#{circle_id},
+				#{name},
+				#{create_time},
+				1,
+				#{dictionaries_id},
+				#{create_user_id},
+				#{sort},
+				2
+			)
+	</insert>
+	<!-- 查询最大排序 -->
+	<select id="circleMaxSort" parameterType="java.util.HashMap" resultType="Integer">
+		select max(sort) sort from yj_circle_user t where t.circle_id = #{circle_id}
+	</select>
+	<!-- 新增圈子用户 -->
+	<insert id="insertCircleUser" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO yj_circle_user (
+			circle_id,
+			user_id
+			<if test="role_id != null and role_id != ''">
+				,role_id
+			</if>
+			,create_time
+			,`status`
+			,user_name
+			,sort
+		)
+		VALUES
+			(
+				#{circle_id},
+				#{user_id}
+				<if test="role_id != null and role_id != ''">
+					,#{role_id}
+				</if>
+				,#{create_time}
+				,1
+				,#{user_name}
+				,#{sort}
+			)
+	</insert>
+	<!-- 查看关注圈子的人总条数 -->
+	<select id="findCircleFollowCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM
+			yj_common_follow f,
+			PRE_AL_MEMBER m
+		WHERE
+			f.`status` = 1
+		AND f.obj_id = #{obj_id}
+		AND f.obj_type = #{obj_type}
+		AND m.AVAILABLE = 0
+		AND m.USID = f.user_id
+		<if test="user_name != null and user_name !=''">
+			AND m.REALNAME LIKE '%${user_name}%'
+		</if>
+	</select>
+	<!-- 查看关注圈子的人列表 -->
+	<select id="findCircleFollowList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			f.id,
+			f.create_time,
+			f.user_id,
+			m.REALNAME user_name,
+			IFNULL(m.COMPANY, '') company,
+			IFNULL(m.COMPANYWORK, '') companywork,
+			CASE
+				WHEN (
+					SELECT
+						count(*)
+					FROM
+						yj_circle_user yjj
+					WHERE
+						yjj.user_id = f.user_id
+					AND yjj.circle_id = #{obj_id}
+					AND yjj.`status` = 1
+				) > 0 THEN
+					1
+				ELSE
+					0
+			END is_member
+		FROM
+			yj_common_follow f,
+			PRE_AL_MEMBER m
+		WHERE
+			f.`status` = 1
+		AND f.obj_id = #{obj_id}
+		AND f.obj_type = #{obj_type}
+		AND m.AVAILABLE = 0
+		AND m.USID = f.user_id
+		<if test="user_name != null and user_name !=''">
+			AND m.REALNAME LIKE '%${user_name}%'
+		</if>
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 修改圈子 -->
+	<update id="updateCircle" parameterType="java.util.HashMap">
+		UPDATE yj_circle
+		SET update_time = #{update_time}
+		<if test="title != null and title != ''">
+		 ,title = #{title}
+		</if>
+		<if test="logo != null">
+		 ,logo = #{logo}
+		</if>
+		<if test="description != null">
+		 ,description = #{description}
+		</if>
+		<if test="brief != null">
+		 ,brief = #{brief}
+		</if>
+		<if test="rule != null">
+		 ,rule = #{rule}
+		</if>
+		<if test="audit_user_id != null and audit_user_id != ''">
+		 ,audit_user_id = #{audit_user_id}
+		</if>
+		<if test="audit_user_name != null and audit_user_name != ''">
+		 ,audit_user_name = #{audit_user_name}
+		</if>
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 查询圈主列表 -->
+	<select id="circleZhuList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			r.*,
+			r.id role_id
+		FROM
+			yj_circle_role r
+		WHERE
+			r.`status` = 1
+		AND r.dictionaries_id = 1
+		AND r.circle_id = #{circle_id}
+	</select>
+	<!-- 删除圈子用户 -->
+	<delete id="deleteCircleUser" parameterType="java.util.HashMap">
+		delete from yj_circle_user
+		WHERE
+			user_id = #{user_id}
+		AND circle_id = #{circle_id}
+		<if test="role_id != null and role_id != ''">
+			AND role_id = #{role_id}
+		</if>
+	</delete>
+	<!-- 查询是否有管理员角色 -->
+	<select  id="findCircleRoleCount" parameterType="java.util.HashMap" resultType="Integer">
+		select count(*) from yj_circle_role r 
+		 where r.`status` = 1 
+		   and r.circle_id = #{circle_id} 
+		   and r.dictionaries_id = 2
+	</select>
+	<!-- 查询圈子角色列表 -->
+	<select id="findCircleRoleList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			r.id,
+			r.id as role_id,
+			r.circle_id,
+			r.`name`,
+			r.create_time,
+			r.dictionaries_id,
+			r.sort
+		FROM
+			yj_circle_role r
+		WHERE
+			r.`status` = 1
+		AND r.circle_id = #{circle_id}
+		<if test="dictionaries_id == null or dictionaries_id == ''">
+			<![CDATA[AND r.dictionaries_id <> 2]]>
+		</if>
+		<if test="dictionaries_id != null and dictionaries_id != ''">
+			AND r.dictionaries_id = 2
+		</if>
+		<if test="role_id != null and role_id != ''">
+			AND r.id = #{role_id}
+		</if>
+		ORDER BY
+			r.sort
+	</select>
+	<!-- 根据圈子角色查询角色人员列表 -->
+	<select id="findCircleRoleUserList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			u.id,
+			u.id as circle_user_id,
+			u.circle_id,
+			u.user_id,
+			u.user_name
+		FROM
+			yj_circle_user u
+		WHERE
+			u.`status` = 1
+		AND u.role_id = #{role_id}
+		AND u.circle_id = #{circle_id}
+		ORDER BY
+			sort
+	</select>
+	<!-- 修改圈子角色排序  -->
+	<update id="updateCircleRoleSort" parameterType="java.util.HashMap">
+		UPDATE yj_circle_role
+		SET sort = #{sort}
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 修改圈子角色  -->
+	<update id="updateCircleRole" parameterType="java.util.HashMap">
+		UPDATE yj_circle_role
+		SET `name` = #{name}
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 查询圈子所有成员 -->
+	<select id="findCircleUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			u.user_id,
+			u.user_name,
+			(
+				SELECT
+					m.COMPANY
+				FROM
+					PRE_AL_MEMBER m
+				WHERE
+					m.AVAILABLE = 0
+				AND m.USID = u.user_id
+			) company
+		FROM
+			yj_circle_user u
+		WHERE
+			u.`status` = 1
+		AND u.circle_id = #{circle_id}
+	</select>
+	<!-- 删除圈子角色  -->
+	<update id="deleteCircleRole" parameterType="java.util.HashMap">
+		UPDATE yj_circle_role
+		SET `status` = 2
+		WHERE
+			id = #{id}
+	</update>
+	<!-- 删除圈子角色 用户  -->
+	<delete id="deleteCircleRolerUser" parameterType="java.util.HashMap">
+		delete from yj_circle_user WHERE role_id = #{id}
+	</delete>
+	<!-- 查询圈子全部内容列表总条数 -->
+	<select id="findCircleAllCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT COUNT(*) count FROM (
+			SELECT DISTINCT
+				a.id,
+				a.title,
+				4 obj_type,
+				a.author_id author_id,
+				a.author_name author_name,
+				a.state,
+				(SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = a.id AND c.obj_type =4 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+				(SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = a.id AND c.obj_type =4 ORDER BY create_time DESC LIMIT 1) comment_user_name,
+				(SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = a.id AND c.obj_type =4 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+				a.create_time,
+				a.update_time,
+				a.is_good,
+				a.is_top
+			FROM
+				yj_activity a,
+				yj_feed_push_tmp r
+			WHERE
+				r.circle_nr_ids in(${circle_id})
+			<if test="status != '2'.toString()">
+				AND r.`status` = 1
+				AND a.`status` = 1
+			</if>
+			<if test="status == '2'.toString()">
+				AND a.`status` = #{status}
+			</if>
+			AND r.is_push_again=1
+			and r.is_push_type=1
+			AND r.obj_id = a.id
+			AND r.obj_type = 4
+			<if test="is_top != null and is_top != ''">
+				AND a.is_top = #{is_top}
+				AND a.state = 1
+			</if>
+			<if test="is_good != null and is_good != ''">
+				AND a.is_good = #{is_good}
+				AND a.state = 1
+			</if>
+			UNION ALL
+				SELECT
+					t.id,
+					t.title,
+					5 obj_type,
+					t.author_id author_id,
+					t.author_name author_name,
+					t.state,
+					(SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = t.id AND c.obj_type =5 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+					(SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = t.id AND c.obj_type =5 ORDER BY create_time DESC LIMIT 1) comment_user_name,
+					(SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = t.id AND c.obj_type =5 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+					t.create_time,
+					t.update_time,
+					t.is_good,
+					t.is_top
+				FROM
+					yj_topic t,
+				  yj_feed_push_tmp r
+				WHERE
+					r.circle_nr_ids in(${circle_id})
+				<if test="status != '2'.toString()">
+					AND r.`status` = 1
+					AND t.`status` = 1
+				</if>
+				<if test="status == '2'.toString()">
+					AND t.`status` = #{status}
+				</if>
+				AND r.is_push_again=1
+				and r.is_push_type=1
+				AND r.obj_id = t.id
+				AND r.obj_type = 5
+				<if test="is_top != null and is_top != ''">
+					AND t.is_top = #{is_top}
+					AND t.state = 1
+				</if>
+				<if test="is_good != null and is_good != ''">
+					AND t.is_good = #{is_good}
+					AND t.state = 1
+				</if>
+				UNION ALL
+					SELECT  DISTINCT
+						s.id,
+						s.title,
+						19 obj_type,
+						s.user_id author_id,
+						s.user_name author_name,
+						s.state,
+						(SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type =19 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+						(SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type =19 ORDER BY create_time DESC LIMIT 1) comment_user_name,
+						(SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type =19 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+						s.create_time,
+						s.update_time,
+						s.is_good,
+						s.is_top
+					FROM
+						yj_circle_share s,
+						yj_feed_push_tmp r
+					WHERE
+						r.circle_nr_ids in(${circle_id})
+					<if test="status != '2'.toString()">
+						AND r.`status` = 1
+						AND s.`status` = 1
+					</if>
+					<if test="status == '2'.toString()">
+						AND s.`status` = #{status}
+					</if>
+					AND r.is_push_again=1
+					and r.is_push_type=1
+					AND r.obj_id = s.id
+					AND r.obj_type = 19
+					<if test="is_top != null and is_top != ''">
+						AND s.is_top = #{is_top}
+						AND s.state = 1
+					</if>
+					<if test="is_good != null and is_good != ''">
+						AND s.is_good = #{is_good}
+						AND s.state = 1
+					</if>
+					UNION ALL
+						SELECT
+							q.id,
+							q.title,
+							18 obj_type,
+							q.user_id author_id,
+							(
+								SELECT
+									m.REALNAME
+								FROM
+									PRE_AL_MEMBER m
+								WHERE
+									m.AVAILABLE = 0
+								AND m.USID = q.user_id
+							) author_name,
+							0 state,
+							(SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = q.id AND c.obj_type =18 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+							(SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = q.id AND c.obj_type =18 ORDER BY create_time DESC LIMIT 1) comment_user_name,
+							(SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = q.id AND c.obj_type =18 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+							q.create_time,
+							q.update_time,
+							q.is_good,
+							q.is_top
+						FROM
+							yj_circle_question q,
+							yj_circle_related r
+						WHERE
+							r.circle_id = #{circle_id}
+						<if test="status != '2'.toString()">
+							AND r.`status` = 1
+							AND q.`status` = 1
+						</if>
+						<if test="status == '2'.toString()">
+							AND q.`status` = #{status}
+						</if>
+						AND r.obj_id = q.id
+						AND r.obj_type = 18
+						<if test="is_top != null and is_top != ''">
+							AND q.is_top = #{is_top}
+						</if>
+						<if test="is_good != null and is_good != ''">
+							AND q.is_good = #{is_good}
+						</if>) tab
+				WHERE 1=1		
+			<if test="title != null and title != ''">
+				and tab.title LIKE '%${title}%'
+			</if>
+			<if test="start_time!=null and start_time!=''">
+				and tab.create_time >=#{start_time}
+			</if>
+			<if test="end_time!=null and end_time!=''">
+				<![CDATA[ and tab.create_time <=#{end_time} ]]> 
+			</if>
+	</select>
+	<!-- 查询圈子全部内容列表 -->
+	<select id="findCircleAllList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM (
+			SELECT DISTINCT
+				a.id,
+				a.title,
+				4 obj_type,
+				a.author_id author_id,
+				a.author_name author_name,
+				a.state,
+				(SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = a.id AND c.obj_type =4 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+				(SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = a.id AND c.obj_type =4 ORDER BY create_time DESC LIMIT 1) comment_user_name,
+				(SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = a.id AND c.obj_type =4 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+				a.create_time,
+				a.update_time,
+				a.is_good,
+				a.is_top
+			FROM
+				yj_activity a,
+				yj_feed_push_tmp r
+			WHERE
+			LOCATE(CONCAT(',',#{circle_id},','),CONCAT(',',r.circle_nr_ids,',')) > 0
+<!-- 				r.circle_nr_ids in(${circle_id}) -->
+			<if test="status != '2'.toString()">
+				AND r.`status` = 1
+				AND a.`status` = 1
+			</if>
+			<if test="status == '2'.toString()">
+				AND a.`status` = #{status}
+			</if>
+			AND r.is_push_again=1
+			and r.is_push_type=1
+			AND r.obj_id = a.id
+			AND r.obj_type = 4
+			<if test="is_top != null and is_top != ''">
+				AND a.is_top = #{is_top}
+				AND a.state = 1
+			</if>
+			<if test="is_good != null and is_good != ''">
+				AND a.is_good = #{is_good}
+				AND a.state = 1
+			</if>
+			UNION ALL
+				SELECT
+					t.id,
+					t.title,
+					5 obj_type,
+					t.author_id author_id,
+					t.author_name author_name,
+					t.state,
+					(SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = t.id AND c.obj_type =5 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+					(SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = t.id AND c.obj_type =5 ORDER BY create_time DESC LIMIT 1) comment_user_name,
+					(SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = t.id AND c.obj_type =5 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+					t.create_time,
+					t.update_time,
+					t.is_good,
+					t.is_top
+				FROM
+					yj_topic t,
+				  yj_feed_push_tmp r
+				WHERE
+					LOCATE(CONCAT(',',#{circle_id},','),CONCAT(',',r.circle_nr_ids,',')) > 0
+<!-- 					r.circle_nr_ids in(${circle_id}) -->
+				<if test="status != '2'.toString()">
+					AND r.`status` = 1
+					AND t.`status` = 1
+				</if>
+				<if test="status == '2'.toString()">
+					AND t.`status` = #{status}
+				</if>
+				AND r.is_push_again=1
+				and r.is_push_type=1
+				AND r.obj_id = t.id
+				AND r.obj_type = 5
+				<if test="is_top != null and is_top != ''">
+					AND t.is_top = #{is_top}
+					AND t.state = 1
+				</if>
+				<if test="is_good != null and is_good != ''">
+					AND t.is_good = #{is_good}
+					AND t.state = 1
+				</if>
+				UNION ALL
+					SELECT  DISTINCT
+						s.id,
+						s.title,
+						19 obj_type,
+						s.user_id author_id,
+						s.user_name author_name,
+						s.state,
+						(SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type =19 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+						(SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type =19 ORDER BY create_time DESC LIMIT 1) comment_user_name,
+						(SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type =19 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+						s.create_time,
+						s.update_time,
+						s.is_good,
+						s.is_top
+					FROM
+						yj_circle_share s,
+						yj_feed_push_tmp r
+					WHERE
+					LOCATE(CONCAT(',',#{circle_id},','),CONCAT(',',r.circle_nr_ids,',')) > 0
+<!-- 						r.circle_nr_ids in(${circle_id}) -->
+					<if test="status != '2'.toString()">
+						AND r.`status` = 1
+						AND s.`status` = 1
+					</if>
+					<if test="status == '2'.toString()">
+						AND s.`status` = #{status}
+					</if>
+					AND r.is_push_again=1
+					and r.is_push_type=1
+					AND r.obj_id = s.id
+					AND r.obj_type = 19
+					<if test="is_top != null and is_top != ''">
+						AND s.is_top = #{is_top}
+						AND s.state = 1
+					</if>
+					<if test="is_good != null and is_good != ''">
+						AND s.is_good = #{is_good}
+						AND s.state = 1
+					</if>
+					UNION ALL
+						SELECT
+							q.id,
+							q.title,
+							18 obj_type,
+							q.user_id author_id,
+							(
+								SELECT
+									m.REALNAME
+								FROM
+									PRE_AL_MEMBER m
+								WHERE
+									m.AVAILABLE = 0
+								AND m.USID = q.user_id
+							) author_name,
+							0 state,
+							(SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = q.id AND c.obj_type =18 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+							(SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = q.id AND c.obj_type =18 ORDER BY create_time DESC LIMIT 1) comment_user_name,
+							(SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = q.id AND c.obj_type =18 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+							q.create_time,
+							q.update_time,
+							q.is_good,
+							q.is_top
+						FROM
+							yj_circle_question q,
+							yj_circle_related r
+						WHERE
+							r.circle_id = #{circle_id}
+						<if test="status != '2'.toString()">
+							AND r.`status` = 1
+							AND q.`status` = 1
+						</if>
+						<if test="status == '2'.toString()">
+							AND q.`status` = #{status}
+						</if>
+						AND r.obj_id = q.id
+						AND r.obj_type = 18
+						<if test="is_top != null and is_top != ''">
+							AND q.is_top = #{is_top}
+						</if>
+						<if test="is_good != null and is_good != ''">
+							AND q.is_good = #{is_good}
+						</if>) tab
+						where 1=1
+			<if test="title != null and title != ''">
+				and tab.title LIKE '%${title}%'
+			</if>
+			<if test="start_time!=null and start_time!=''">
+				and tab.create_time >=#{start_time}
+			</if>
+			<if test="end_time!=null and end_time!=''">
+				<![CDATA[ and tab.create_time <=#{end_time} ]]> 
+			</if>
+			ORDER BY tab.is_top desc,tab.create_time DESC ,tab.update_time desc
+			<if test="y != null and y != ''">
+				LIMIT ${x},${y}
+			</if>
+	</select>
+	<!-- 查询圈子活动列表总条数 -->
+	<select id="findCircleActivityCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM(SELECT DISTINCT
+			a.id,
+			a.title,
+			4 obj_type,
+			a.author_id author_id,
+			a.author_name author_name,
+			a.state,
+			(
+				SELECT
+					c.user_id
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = a.id
+				AND c.obj_type = 4
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_id,
+			(
+				SELECT
+					c.user_name
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = a.id
+				AND c.obj_type = 4
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_name,
+			(
+				SELECT
+					c.create_time
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = a.id
+				AND c.obj_type = 4
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_create_time,
+			a.create_time,
+			a.start_time,
+			a.end_time,
+			a.is_start,
+			a.is_good,
+			a.is_top
+		FROM
+			yj_activity a
+			<if test="circle_id != null and circle_id != ''">
+				,yj_feed_push_tmp r
+			</if>
+		WHERE
+			a.`status` = 1
+		<if test="circle_id != null and circle_id != ''">
+			AND r.`status` = 1
+			AND r.is_push_again=1
+			and r.is_push_type=1
+<!-- 			AND r.circle_nr_ids in(${circle_id}) -->
+			and LOCATE(CONCAT(',',#{circle_id},','),CONCAT(',',r.circle_nr_ids,',')) > 0
+			AND r.obj_id = a.id
+			AND r.obj_type = 4
+		</if>
+		<if test="title != null and title != ''">
+			AND a.title LIKE '%${title}%'
+		</if> ) tt
+	</select>
+	<!-- 查询圈子活动列表 -->
+	<select id="findCircleActivityList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT DISTINCT
+			a.id,
+			a.title,
+			4 obj_type,
+			a.author_id author_id,
+			a.author_name author_name,
+			a.state,
+			(
+				SELECT
+					c.user_id
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = a.id
+				AND c.obj_type = 4
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_id,
+			(
+				SELECT
+					c.user_name
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = a.id
+				AND c.obj_type = 4
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_name,
+			(
+				SELECT
+					c.create_time
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = a.id
+				AND c.obj_type = 4
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_create_time,
+			a.create_time,
+			a.start_time,
+			a.end_time,
+			a.is_start,
+			a.is_good,
+			a.is_top
+		FROM
+			yj_activity a
+			<if test="circle_id != null and circle_id != ''">
+				,yj_feed_push_tmp r
+			</if>
+		WHERE
+			a.`status` = 1
+		<if test="circle_id != null and circle_id != ''">
+			AND r.`status` = 1
+			AND r.is_push_again=1
+			and r.is_push_type=1
+<!-- 			AND r.circle_nr_ids in(${circle_id}) -->
+			and LOCATE(CONCAT(',',#{circle_id},','),CONCAT(',',r.circle_nr_ids,',')) > 0
+			AND r.obj_id = a.id
+			AND r.obj_type = 4
+		</if>
+		<if test="title != null and title != ''">
+			AND a.title LIKE '%${title}%'
+		</if>
+		ORDER BY
+			a.update_time DESC,
+			a.create_time desc
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 查询圈子话题列表总条数 -->
+	<select id="findCircleTopicCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM(SELECT
+			t.id,
+			t.title,
+			5 obj_type,
+			t.author_id author_id,
+			t.author_name author_name,
+			t.state,
+			(
+				SELECT
+					c.user_id
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = t.id
+				AND c.obj_type = 5
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_id,
+			(
+				SELECT
+					c.user_name
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = t.id
+				AND c.obj_type = 5
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_name,
+			(
+				SELECT
+					c.create_time
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = t.id
+				AND c.obj_type = 5
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_create_time,
+			t.create_time,
+			t.is_good,
+			t.is_top
+		FROM
+			yj_topic t
+			<if test="circle_id != null and circle_id != ''">
+				,yj_feed_push_tmp r
+			</if>
+		WHERE
+			t.`status` = 1
+		<if test="circle_id != null and circle_id != ''">
+			AND r.`status` = 1
+			AND r.is_push_again=1
+			AND r.is_push_type=1
+			AND r.circle_nr_ids in(${circle_id})
+			AND r.obj_id = t.id
+			AND r.obj_type = 5
+		</if>
+		<if test="title != null and title != ''">
+			AND t.title LIKE '%${title}%'
+		</if> ) tt
+	</select>
+	<!-- 查询圈子话题列表 -->
+	<select id="findCircleTopicList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			t.id,
+			t.title,
+			5 obj_type,
+			t.author_id author_id,
+			t.author_name author_name,
+			t.state,
+			(
+				SELECT
+					c.user_id
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = t.id
+				AND c.obj_type = 5
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_id,
+			(
+				SELECT
+					c.user_name
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = t.id
+				AND c.obj_type = 5
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_name,
+			(
+				SELECT
+					c.create_time
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = t.id
+				AND c.obj_type = 5
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_create_time,
+			t.create_time,
+			t.is_good,
+			t.is_top
+		FROM
+			yj_topic t
+			<if test="circle_id != null and circle_id != ''">
+				,yj_feed_push_tmp r
+			</if>
+		WHERE
+			t.`status` = 1
+		<if test="circle_id != null and circle_id != ''">
+			AND r.`status` = 1
+			AND r.is_push_again=1
+			AND r.is_push_type=1
+			AND r.circle_nr_ids in(${circle_id})
+			AND r.obj_id = t.id
+			AND r.obj_type = 5
+		</if>
+		<if test="title != null and title != ''">
+			AND t.title LIKE '%${title}%'
+		</if>
+		ORDER BY
+			t.update_time desc,
+			t.create_time desc
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 查询帖子列表总条数 -->
+	<select id="findCircleShareCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM(SELECT DISTINCT s.*,
+			19 obj_type,
+			s.user_id author_id,
+			s.user_name author_name,
+			( SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type = 19 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+			( SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type = 19 ORDER BY create_time DESC LIMIT 1 ) comment_user_name,
+			( SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type = 19 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+			( SELECT title FROM yj_circle WHERE id = s.circle_id)circle_title
+		FROM
+			yj_circle_share s
+			<if test="circle_id != null and circle_id != ''">
+				,yj_feed_push_tmp r
+			</if>
+		WHERE
+			s.`status` = 1
+		<if test="circle_id != null and circle_id != ''">
+			AND r.`status` = 1
+			AND r.is_push_again=1
+			and r.is_push_type=1
+			AND r.circle_nr_ids in(${circle_id})
+			AND r.obj_id = s.id
+			AND r.obj_type = 19
+		</if>
+		<if test="title != null and title != ''">
+			AND s.title LIKE '%${title}%'
+		</if> ) tt
+	</select>
+	<!-- 查询帖子列表 -->
+	<select id="findCircleShareList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT DISTINCT s.*,
+			19 obj_type,
+			s.user_id author_id,
+			s.user_name author_name,
+			( SELECT c.user_id FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type = 19 ORDER BY create_time DESC LIMIT 1) comment_user_id,
+			( SELECT c.user_name FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type = 19 ORDER BY create_time DESC LIMIT 1 ) comment_user_name,
+			( SELECT c.create_time FROM yj_common_comment c WHERE c.`status` = 1 AND c.obj_id = s.id AND c.obj_type = 19 ORDER BY create_time DESC LIMIT 1) comment_create_time,
+			( SELECT title FROM yj_circle WHERE id = s.circle_id)circle_title
+		FROM
+			yj_circle_share s
+			<if test="circle_id != null and circle_id != ''">
+				,yj_feed_push_tmp r
+			</if>
+		WHERE
+			s.`status` = 1
+		<if test="circle_id != null and circle_id != ''">
+			AND r.`status` = 1
+			AND r.is_push_again=1
+			and r.is_push_type=1
+			AND r.circle_nr_ids in(${circle_id})
+			AND r.obj_id = s.id
+			AND r.obj_type = 19
+		</if>
+		<if test="title != null and title != ''">
+			AND s.title LIKE '%${title}%'
+		</if>
+		ORDER BY
+			s.update_time desc,s.create_time DESC
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 查询圈子帮助列表总条数 -->
+	<select id="findCircleQuestionCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM
+			yj_circle_question q,
+			yj_circle_related r
+		WHERE
+			q.`status` = 1
+		AND r.`status` = 1
+		AND r.circle_id = #{circle_id}
+		AND r.obj_id = q.id
+		AND r.obj_type = 18
+		<if test="title != null and title != ''">
+			AND q.title LIKE '%${title}%'
+		</if>
+		ORDER BY
+			q.create_time DESC
+	</select>
+	<!-- 查询圈子帮助列表 -->
+	<select id="findCircleQuestionList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			q.id,
+			q.title,
+			18 obj_type,
+			q.user_id author_id,
+			(
+				SELECT
+					m.REALNAME
+				FROM
+					PRE_AL_MEMBER m
+				WHERE
+					m.AVAILABLE = 0
+				AND m.USID = q.user_id
+			) author_name,
+			(
+				SELECT
+					c.user_id
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = q.id
+				AND c.obj_type = 18
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_id,
+			(
+				SELECT
+					c.user_name
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = q.id
+				AND c.obj_type = 18
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_user_name,
+			(
+				SELECT
+					c.create_time
+				FROM
+					yj_common_comment c
+				WHERE
+					c.`status` = 1
+				AND c.obj_id = q.id
+				AND c.obj_type = 18
+				ORDER BY
+					create_time DESC
+				LIMIT 1
+			) comment_create_time,
+			q.create_time,
+			q.is_good,
+			q.is_top,
+			q.update_id,
+			q.update_name
+		FROM
+			yj_circle_question q,
+			yj_circle_related r
+		WHERE
+			q.`status` = 1
+		AND r.`status` = 1
+		AND r.circle_id = #{circle_id}
+		AND r.obj_id = q.id
+		AND r.obj_type = 18
+		<if test="title != null and title != ''">
+			AND q.title LIKE '%${title}%'
+		</if>
+		ORDER BY
+			q.update_time desc,q.create_time DESC
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 修改圈子相关内容  -->
+	<update id="updateCircleRelatedList" parameterType="java.util.HashMap">
+		UPDATE ${table}
+		SET update_time = #{update_time}
+		<if test="is_top != null and is_top != ''">
+		 ,is_top = #{is_top}
+		</if>
+		<if test="is_good != null and is_good != ''">
+		 ,is_good = #{is_good}
+		</if>
+		<if test="status != null and status != ''">
+		 ,`status` = #{status}
+		</if>
+		<if test="update_user_id != null and update_user_id != ''">
+		 ,update_id = #{update_user_id}
+		</if>
+		<if test="update_user_name != null and update_user_name != ''">
+		 ,update_name = #{update_user_name}
+		</if>
+		 ,update_type = 2
+		WHERE
+			id = #{obj_id}
+	</update>
+	<!-- 修改圈子信息流  -->
+	<update id="updateCircleFeed" parameterType="java.util.HashMap">
+		UPDATE yj_circle_feed
+		SET update_time = #{update_time},
+		 is_good = #{is_good}
+		WHERE
+			obj_id = #{obj_id}
+		AND obj_type = #{obj_type}
+	</update>
+	<!-- 修改圈子相关表  -->
+	<update id="updateCircleRelated" parameterType="java.util.HashMap">
+		UPDATE yj_circle_related
+		SET update_type = 2,
+		 update_time = #{update_time}
+		 <if test="update_user_id != null and update_user_id != ''">
+		 	,update_user_id = #{update_user_id}
+		 </if>
+		 <if test="update_user_name != null and update_user_name != ''">
+		 	,update_user_name = #{update_user_name}
+		 </if>
+		 <if test="status != null and status != ''">
+		 	,`status` = #{status}
+		 </if>
+		WHERE
+			obj_id = #{obj_id}
+		AND obj_type = #{obj_type}
+	</update>
+	<!-- 删除圈子相关表  -->
+	<delete id="deleteCircleRelated" parameterType="java.util.HashMap">
+		DELETE 
+		FROM yj_circle_related
+		WHERE
+			obj_id = #{obj_id}
+		AND obj_type = #{obj_type}
+	</delete>
+	<!-- 修改圈子活动，话题，帖子，帮助（点赞数，分享数等）  -->
+	<update id="updateCircleCommon" parameterType="java.util.HashMap">
+		UPDATE ${table}
+		SET  audit_user_id = #{audit_user_id}
+		 <if test="audit_user_name != null and audit_user_name != ''">
+		 	,audit_user_name = #{audit_user_name}
+		 </if>
+		 <if test="view_times_count_all != null and view_times_count_all != ''">
+		 	,view_times_count_all = #{view_times_count_all}
+		 </if>
+		 <if test="view_people_count_all != null and view_people_count_all != ''">
+		 	,view_people_count_all = #{view_people_count_all}
+		 </if>
+		 <if test="zan_count_all != null and zan_count_all != ''">
+		 	,zan_count_all = #{zan_count_all}
+		 </if>
+		 <if test="favorite_count_all != null and favorite_count_all != ''">
+		 	,favorite_count_all = #{favorite_count_all}
+		 </if>
+		 <if test="share_count_all != null and share_count_all != ''">
+		 	,share_count_all = #{share_count_all}
+		 </if>
+		 <if test="comment_count_all != null and comment_count_all != ''">
+		 	,comment_count_all = #{comment_count_all}
+		 </if>
+		  <if test="is_good != null and is_good != ''">
+		 	,is_good = #{is_good}
+		 </if>
+		 <if test="show_people_count!=null and show_people_count!=''">
+		 	,show_people_count = #{show_people_count}
+		 </if>
+		 <if test ="visit_people_count!=null and visit_people_count!=''">
+		 	,visit_people_count=#{visit_people_count}
+		 </if>
+		 <if test="true_count_all != null and true_count_all != ''">
+		 	,true_count_all = #{true_count_all}
+		 </if>
+		 <if test ="false_count_all != null and false_count_all != ''">
+		 	,false_count_all=#{false_count_all}
+		 </if>
+		WHERE
+			id = #{obj_id}
+	</update>
+	<!-- 新增圈子相关表 -->
+	<insert id="insertCircleRelated" parameterType="java.util.HashMap">
+		INSERT INTO yj_circle_related (
+			circle_id,
+			obj_id,
+			obj_type,
+			create_time,
+			`status`,
+			state
+		)
+		VALUES
+			(
+				#{circle_id},
+				#{obj_id},
+				#{obj_type},
+				#{create_time},
+				1,
+				#{state}
+			)
+	</insert>
+	<!-- 查询详情属于的圈子列表 -->
+	<select id="findRelatedList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT DISTINCT
+			c.id,
+			c.title
+		FROM
+			yj_circle_related r,
+			yj_circle c
+		WHERE
+			r.`status` = 1
+		AND r.obj_id = #{obj_id}
+		AND r.obj_type = #{obj_type}
+		AND c.state = 1
+		AND c.`status` = 1
+		AND c.id = r.circle_id
+	</select>
+	<!-- 获取帮助列表总条数 -->
+	<select id="findQuestionCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT
+			COUNT(*) count
+		FROM
+			(
+				SELECT
+					q.id,
+					q.circle_id,
+					(
+						SELECT
+							c.title
+						FROM
+							yj_circle c
+						WHERE
+							q.circle_id = c.id
+					) circle_title,
+					q.user_id,
+					q.create_time,
+					q.title,
+					q.content,
+					q.image,
+					q.is_top,
+					q.is_good,
+					q.show_times_count,
+					q.show_people_count,
+					q.visit_times_count,
+					q.visit_people_count,
+					q.zan_count,
+					q.favorite_count,
+					q.share_count,
+					q.comment_count,
+					q.view_times_count_all,
+					q.view_people_count_all,
+					q.wx_visit_times_count,
+					q.wx_visit_people_count,
+					q.zan_count_all,
+					q.favorite_count_all,
+					q.share_count_all,
+					q.comment_count_all,
+					q.`status`,
+					q.update_time,
+					q.audit_user_id,
+					q.audit_user_name
+				FROM
+					yj_circle_question q
+			) t
+		WHERE 1=1
+		<if test="status != null and status != ''">
+			AND t.`status` = #{status}
+		</if>
+		<if test="title != null and title != ''">
+			AND t.title LIKE '%${title}%'
+		</if>
+		<if test="circle_title != null and circle_title != ''">
+			AND t.circle_title LIKE '%${circle_title}%'
+		</if>
+		<if test="create_start_time != null and create_start_time != ''">
+			AND t.create_time >= #{create_start_time}
+		</if>
+		<if test="create_end_time != null and create_end_time != ''">
+			<![CDATA[AND t.create_time <= #{create_end_time}]]>
+		</if>
+		<if test="delete_start_time != null and delete_start_time != ''">
+			AND t.update_time >= #{delete_start_time}
+		</if>
+		<if test="delete_end_time != null and delete_end_time != ''">
+			<![CDATA[AND t.update_time <= #{delete_end_time}]]>
+		</if>
+	</select>
+	<!-- 获取帮助列表 -->
+	<select id="findQuestionList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			*
+		FROM
+			(
+				SELECT
+					q.id,
+					q.circle_id,
+					( SELECT c.title FROM yj_circle c WHERE q.circle_id = c.id ) circle_title,
+					q.user_id,
+					(select REALNAME from PRE_AL_MEMBER where usid=q.user_id) author_name,
+					q.create_time,
+					q.title,
+					q.content,
+					q.image,
+					q.is_top,
+					q.is_good,
+					18 as obj_type,
+					q.show_times_count,
+					q.show_people_count,
+					q.visit_times_count,
+					q.visit_people_count,
+					q.zan_count,
+					q.favorite_count,
+					q.share_count,
+					q.comment_count,
+					q.view_times_count_all,
+					q.view_people_count_all,
+					q.wx_visit_times_count,
+					q.wx_visit_people_count,
+					q.zan_count_all,
+					q.favorite_count_all,
+					q.share_count_all,
+					q.comment_count_all,
+					q.`status`,
+					q.update_time,
+					q.update_id,
+					q.update_name,
+					q.audit_user_id,
+					q.audit_user_name
+				FROM
+					yj_circle_question q
+			) t
+		WHERE 1=1
+		<if test="status != null and status != ''">
+			AND t.`status` = #{status}
+		</if>
+		<if test="title != null and title != ''">
+			AND t.title LIKE '%${title}%'
+		</if>
+		<if test="circle_title != null and circle_title != ''">
+			AND t.circle_title LIKE '%${circle_title}%'
+		</if>
+		<if test="create_start_time != null and create_start_time != ''">
+			AND t.create_time >= #{create_start_time}
+		</if>
+		<if test="create_end_time != null and create_end_time != ''">
+			<![CDATA[AND t.create_time <= #{create_end_time}]]>
+		</if>
+		<if test="delete_start_time != null and delete_start_time != ''">
+			AND t.update_time >= #{delete_start_time}
+		</if>
+		<if test="delete_end_time != null and delete_end_time != ''">
+			<![CDATA[AND t.update_time <= #{delete_end_time}]]>
+		</if>
+		ORDER BY t.create_time DESC
+		<if test="y != null and y != ''">
+			LIMIT ${x},${y}
+		</if>
+	</select>
+	<!-- 获取帮助详情 -->
+	<select id="findQuestionDetail" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			q.id,
+			q.circle_id,
+			(
+				SELECT
+					c.title
+				FROM
+					yj_circle c
+				WHERE
+					q.circle_id = c.id
+			) circle_title,
+			(
+				SELECT
+					p.REALNAME
+				FROM
+					PRE_AL_MEMBER p
+				WHERE
+					p.USID = q.user_id
+			) user_name,
+			q.user_id,
+			q.create_time,
+			q.title,
+			q.content,
+			q.image,
+			q.is_top,
+			q.is_good,
+			q.status
+		FROM
+			yj_circle_question q
+		WHERE
+			q.id = #{id}
+	</select>
+	
+	<select id="findUserInfobyId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select p.*,t.title circleName from PRE_AL_MEMBER p ,yj_circle t where p.USID = t.master_id and t.id = #{id}
+	</select>
+	<!-- 编辑圈子帮助 -->
+	<update id="updateQuestion" parameterType="java.util.HashMap">
+		UPDATE yj_circle_question
+		SET update_id = #{update_id}
+		 <if test="update_name != null and update_name != ''">
+		 	,update_name = #{update_name}
+		 </if>
+		 <if test="status != null and status != ''">
+		 	,status = #{status}
+		 </if>
+		 <if test="circle_id != null and circle_id != ''">
+		 	,circle_id = #{circle_id}
+		 </if>
+		 <if test="user_id != null and user_id != ''">
+		 	,user_id = #{user_id}
+		 </if>
+		 <if test="title != null and title != ''">
+		 	,title = #{title}
+		 </if>
+		 <if test="image != null">
+		 	,image = #{image}
+		 </if>
+		 <if test="update_time != null and update_time != ''">
+		 	,update_time = #{update_time}
+		 	,update_type = 2
+		 </if>
+		 <if test="content != null and content != ''">
+		 	,content = #{content}
+		 </if>
+		WHERE
+			id =#{id}
+	</update>
+	
+	<!-- 获取圈子ID圈主用户信息 -->
+	<select id="findCircleMasterUserInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select p.* from yj_circle_role r , yj_circle_user u , PRE_AL_MEMBER p where r.dictionaries_id = 1 and r.id = u.role_id and u.user_id = p.USID and r.circle_id = #{circle_id} and u.status=1
+	</select>
+	
+	<!-- 获取新增圈子管理员用户信息 -->
+	<select id="findCircleManagerUserInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from PRE_AL_MEMBER t where t.USID in (#{user_id})
+	</select>
+	
+	<!-- 根据圈子ID获取圈子信息 -->
+	<select id="findCircleInfoById" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select * from yj_circle t where t.id = #{circle_id}
+	</select>
+	
+</mapper>
