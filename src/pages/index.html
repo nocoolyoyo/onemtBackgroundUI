@@ -10,7 +10,6 @@
 
     <meta name="keywords" content="">
     <meta name="description" content="">
-
     <!--[if lt IE 9]>
     <meta http-equiv="refresh" content="0;ie.html" />
     <![endif]-->
@@ -23,43 +22,21 @@
     <script src="../modules/vendor/jQuery/jquery.min.js"></script>
     <link href="../modules/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <script src="../modules/vendor/bootstrap/js/bootstrap.min.js"></script>
-    <link href="../modules/custom/onemtSkin/default.css" rel="stylesheet">
+    <link href="../modules/custom/onemtSkin/style.css" rel="stylesheet">
 </head>
 
 <body class="fixed-sidebar full-height-layout gray-bg">
     <div id="wrapper">
         <!--左侧导航开始-->
-        <nav class="navbar-default navbar-static-side" role="navigation">
+        <nav class="left-navbar navbar-static-side" role="navigation">
+            <div class="nav-logo">
+                <img src="../assets/image/logo_cn.png">
+            </div>
             <div class="nav-close"><i class="fa fa-times-circle"></i>
             </div>
             <div class="sidebar-collapse">
                 <ul class="nav" id="side-menu">
-                    <li class="nav-header">
-                        <div class="dropdown profile-element">
-                            <span><img alt="image" class="img-circle" src="img/profile_small.jpg" /></span>
-                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                    <span class="clear">
-                               <span class="block m-t-xs"><strong class="font-bold">Beaut-zihan</strong></span>
-                                <span class="text-muted text-xs block">超级管理员<b class="caret"></b></span>
-                                </span>
-                            </a>
-                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                                <li><a class="J_menuItem" href="form_avatar.html">修改头像</a>
-                                </li>
-                                <li><a class="J_menuItem" href="profile.html">个人资料</a>
-                                </li>
-                                <li><a class="J_menuItem" href="contacts.html">联系我们</a>
-                                </li>
-                                <li><a class="J_menuItem" href="mailbox.html">信箱</a>
-                                </li>
-                                <li class="divider"></li>
-                                <li><a href="login.html">安全退出</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="logo-element">H+
-                        </div>
-                    </li>
+
                     <li>
                         <a href="#">
                             <i class="fa fa-home"></i>
@@ -378,8 +355,8 @@
         <!--左侧导航结束-->
         <!--右侧部分开始-->
         <div id="page-wrapper" class="gray-bg dashbard-1">
-            <div class="row border-bottom">
-                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="row">
+                <nav class="top-navbar navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
                     <div class="navbar-header"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
                         <form role="search" class="navbar-form-custom" method="post" action="search_results.html">
                             <div class="form-group">
@@ -464,11 +441,16 @@
                             </ul>
                         </li>
                         <li class="hidden-xs">
-                            <a href="index_v1.html" class="J_menuItem" data-index="0"><i class="fa fa-cart-arrow-down"></i> 购买</a>
+                            <a href="index_v1.html" class="J_menuItem" data-index="0"><i class="fa fa-cart-arrow-down"></i></a>
                         </li>
+                        <!--<li class="dropdown hidden-xs">-->
+                            <!--<a class="right-sidebar-toggle" aria-expanded="false">-->
+                                <!--<i class="fa fa-tasks"></i> 主题-->
+                            <!--</a>-->
+                        <!--</li>-->
                         <li class="dropdown hidden-xs">
-                            <a class="right-sidebar-toggle" aria-expanded="false">
-                                <i class="fa fa-tasks"></i> 主题
+                            <a class="user-card right-sidebar-toggle">
+                                <img class="avatar" src="../assets/image/avatar.jpg">登录名称
                             </a>
                         </li>
                     </ul>
@@ -929,6 +911,7 @@
 
     <!-- 自定义js -->
     <script src="../modules/custom/onemtSkin/index.js"></script>
+    <script type="text/javascript" src="../modules/custom/onemtSkin/contabs.js"></script>
 </body>
 
 </html>

@@ -38,6 +38,7 @@ $c-sapling:     #93D76E;
 $c-killer:      #1f2738;
 $c-ink:         #58647E;
 $c-dream:       #B8C5D8;
+$c-clean:       #deecff;
 $c-milka:       #F8F9FD;
 $c-muted:       #B5C0CB;
 
@@ -86,9 +87,6 @@ $border-normal: 1px solid rgba(34,36,38,.15);
 $border-radius-normal: .28571429rem;
 
 
-//过渡---------------------------
-$transition-normal: box-shadow .1s ease,-webkit-transform .1s ease;
-$transition-slow: all 0.5s ease;
 
 
 //阴影
@@ -102,8 +100,8 @@ $box-shadow-line: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
 //$theme-color-bg:        $c-milka;
 //$theme-color-text:      $c-milka;
 //$theme-color-hr:        $c-smt-border;
-$theme-c-default:   $c-dream;
-$theme-c-primary:   $c-royal;
-$theme-c-danger:    $c-heart;
-$theme-c-warning:   $c-mango;
-$theme-c-success:   $c-sapling;
+//$theme-c-default:   $c-dream;
+//$theme-c-primary:   $c-royal;
+//$theme-c-danger:    $c-heart;
+//$theme-c-warning:   $c-mango;
+//$theme-c-success:   $c-sapling;
