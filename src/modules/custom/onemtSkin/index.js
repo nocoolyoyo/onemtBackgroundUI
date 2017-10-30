@@ -8,38 +8,38 @@ $(document).ready(function () {
     // MetsiMenu
     $('#side-menu').metisMenu();
 
-    // 打开右侧边栏
-    $('.right-sidebar-toggle').click(function () {
-        $('#right-sidebar').toggleClass('sidebar-open');
-    });
-
-    // 右侧边栏使用slimscroll
-    $('.sidebar-container').slimScroll({
-        height: '100%',
-        railOpacity: 0.4,
-        wheelStep: 10
-    });
-
-    // 打开聊天窗口
-    $('.open-small-chat').click(function () {
-        $(this).children().toggleClass('fa-comments').toggleClass('fa-remove');
-        $('.small-chat-box').toggleClass('active');
-    });
-
-    // 聊天窗口使用slimscroll
-    $('.small-chat-box .content').slimScroll({
-        height: '234px',
-        railOpacity: 0.4
-    });
+    // // 打开右侧边栏
+    // $('.right-sidebar-toggle').click(function () {
+    //     $('#right-sidebar').toggleClass('sidebar-open');
+    // });
+    //
+    // // 右侧边栏使用slimscroll
+    // $('.sidebar-container').slimScroll({
+    //     height: '100%',
+    //     railOpacity: 0.4,
+    //     wheelStep: 10
+    // });
+    //
+    // // 打开聊天窗口
+    // $('.open-small-chat').click(function () {
+    //     $(this).children().toggleClass('fa-comments').toggleClass('fa-remove');
+    //     $('.small-chat-box').toggleClass('active');
+    // });
+    //
+    // // 聊天窗口使用slimscroll
+    // $('.small-chat-box .content').slimScroll({
+    //     height: '234px',
+    //     railOpacity: 0.4
+    // });
 
     // Small todo handler
-    $('.check-link').click(function () {
-        var button = $(this).find('i');
-        var label = $(this).next('span');
-        button.toggleClass('fa-check-square').toggleClass('fa-square-o');
-        label.toggleClass('todo-completed');
-        return false;
-    });
+    // $('.check-link').click(function () {
+    //     var button = $(this).find('i');
+    //     var label = $(this).next('span');
+    //     button.toggleClass('fa-check-square').toggleClass('fa-square-o');
+    //     label.toggleClass('todo-completed');
+    //     return false;
+    // });
 
     //固定菜单栏
     $(function () {

@@ -6,7 +6,7 @@
 //组件变量设置
 
 
-$tab-bar-bg-primary: $c-royal;
+$tab-bar-bg-primary: $theme-c-primary;
 $tab-bar-bg: $c-milka;
 $tab-bar-bg-button: white;
 $tab-bar-height-outer: 42px;
@@ -49,7 +49,7 @@ $top-navbar-avatar-size: 50px;
       margin-right: $space-tab;
       height: $tab-bar-height-outer - $space-tab*2;
       line-height: $tab-bar-height-outer - $space-tab*2;
-      border-radius: $border-radius-normal;
+      border-radius: $border-radius-md;
       color: $top-navbar-text;
       background-color: $tab-bar-bg-button;
       &.active {

@@ -4,7 +4,7 @@
 
 
 //组件变量设置
-$menu-c-primary: $c-royal;
+$menu-c-primary: $theme-c-primary;
 $menu-c-bg: white;
 $menu-c-bg-active: $c-milka;
 $menu-c-title: $c-killer;
@@ -12,21 +12,32 @@ $menu-c-text: $c-ink;
 $menu-s-p-nav-link: 14px 20px 14px 25px;
 $menu-nav-logo-height: 60px;
 $menu-nav-logo-space-p: 10px 20px;
+$menu-logo-width:220px;
 
 /*----------主题相关start-------------*/
+.mini-navbar {
+  .logo-title {
+    opacity: 0 !important;
+  }
+}
 
 //左侧导航菜单
 .left-navbar {
   background-color: $menu-c-bg;
   position: relative;
+
   .nav-logo {
     height: $menu-nav-logo-height;
     background-color: $menu-c-primary;
-    @include display-flex(column,center,center);
+    @include display-flex(row,flex-start,center);
+    flex-wrap: nowrap;
     padding: $menu-nav-logo-space-p;
+    position: relative;
+    overflow-x: hidden;
     img{
-      width: 100%;
-      display: block;
+      transition: opacity 0.2s linear;
+      width: auto;
+      opacity: 1;
     }
   }
   .nav {

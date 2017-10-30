@@ -30,6 +30,7 @@ $FontWeight:(
 //色板-----------------------
 $c-knight:      #70599D;
 $c-royal:       #6E70F7;
+$c-ocean:       #008CEE;
 $c-heart:       #FF403B;
 $c-cherry:       #FE1E6D;
 $c-mango:      #FFC000;
@@ -84,8 +85,8 @@ $border-normal: 1px solid rgba(34,36,38,.15);
 
 //圓角-----------------------
 
-$border-radius-normal: .28571429rem;
-
+$border-radius-md: .28571429rem;
+$border-radius-lg: .56rem;
 
 
 
@@ -97,11 +98,11 @@ $box-shadow-line: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
 
 //主題设置
 
-//$theme-color-bg:        $c-milka;
-//$theme-color-text:      $c-milka;
-//$theme-color-hr:        $c-smt-border;
-//$theme-c-default:   $c-dream;
-//$theme-c-primary:   $c-royal;
-//$theme-c-danger:    $c-heart;
-//$theme-c-warning:   $c-mango;
-//$theme-c-success:   $c-sapling;
+$theme-color-bg:        $c-milka;
+$theme-color-text:      $c-milka;
+$theme-color-hr:        $c-milka;
+$theme-c-default:   $c-dream;
+$theme-c-primary:   $c-ocean;
+$theme-c-danger:    $c-heart;
+$theme-c-warning:   $c-mango;
+$theme-c-success:   $c-sapling;
