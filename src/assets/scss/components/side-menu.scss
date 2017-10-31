@@ -2,12 +2,11 @@
 // 左侧菜单
 //-----------------------
 
-
 //组件变量设置
 $menu-c-primary: $theme-c-primary;
 $menu-c-bg: white;
 $menu-c-bg-active: $c-milka;
-$menu-c-title: $c-killer;
+$menu-c-title: $c-ink;
 $menu-c-text: $c-ink;
 $menu-s-p-nav-link: 14px 20px 14px 25px;
 $menu-nav-logo-height: 60px;
@@ -27,6 +26,7 @@ $menu-logo-width:220px;
   position: relative;
 
   .nav-logo {
+    user-select: none;
     height: $menu-nav-logo-height;
     background-color: $menu-c-primary;
     @include display-flex(row,flex-start,center);
@@ -35,6 +35,20 @@ $menu-logo-width:220px;
     position: relative;
     overflow-x: hidden;
     img{
+      transition: opacity 0.2s linear;
+      width:35px;
+      height:35px;
+      opacity: 1;
+    }
+    .logo-title {
+      font-family: serif;
+      font-weight: 600;
+      margin-left: 10px;
+      overflow: hidden;
+      word-break: keep-all;
+      font-size: 20px;
+      text-overflow: clip;
+      color: white;
       transition: opacity 0.2s linear;
       width: auto;
       opacity: 1;
@@ -45,22 +59,23 @@ $menu-logo-width:220px;
     li {
       a {
         color: $menu-c-title;
-        //&:hover,&:focus {
-        //  color: $menu-c-bg;
-        //}
+        transition: opacity 0.2s linear;
+        &:hover,&:focus {
+          opacity: 0.7;
+
+          background-color: transparent;
+        }
       }
       @include transition(slow,border);
       //激活样式相关
       &.active {
-        @include box-shadow(null,lighten($c-dream,10%),true);
+        //@include box-shadow(null,lighten($c-dream,10%),true);
         a {
           color: darken($menu-c-title,10%);
         }
-        background-color: $menu-c-bg-active;
-        border-left: 5px solid $menu-c-primary;
+        //border-left: 5px solid $menu-c-primary;
       }
     }
-
 
     //nav展开样式
     //&.collapse {
@@ -80,8 +95,21 @@ $menu-logo-width:220px;
         display: block;
         font-weight: $fw-bold;
         padding: $menu-s-p-nav-link;
+        .fa-stack {
+          transform: scale(0.58);
+          float: right;
+          margin-top: -8px;
+          transform-origin: 100% 50% 0;
+        }
       }
     }
+
+  }
+}
+
+.mini-navbar {
+  .fa-stack {
+    display: none;
   }
 }
 
@@ -148,6 +176,53 @@ $menu-logo-width:220px;
 .nav-second-level li:last-child {
   margin-bottom: 10px;
 }
+.nav-second-level {
+  margin-left: 30px;
+  li{
+    a {
+      color: darken($c-muted,10%) !important;
+      .arrow {
+        margin-right: 8px;
+      }
+      padding-left: 10px !important;
+    }
+
+  }
+
+}
+.nav-third-level {
+  margin-left: 10px;
+   li{
+     a {
+       //position: relative;
+       //&:before {
+       //  display: block;
+       //  width: 7px;
+       //  height:1px;
+       //  position: absolute;
+       //  z-index: 1;
+       //  left: 20px;
+       //  top: 17px;
+       //  border: 1px dotted $c-muted;
+       //}
+       color: $c-muted !important;
+       margin-left: 20px !important;
+     }
+   }
+  position: relative;
+  &:before {
+    position: absolute;
+    display: block;
+    top:20px;
+    left:0;
+    height:67%;
+    width: 2px;
+    border-left: 2px dotted $c-muted;
+  }
+
+ }
+
+
 
 body:not(.fixed-sidebar):not(.canvas-menu).mini-navbar .nav li:hover > .nav-second-level,
 .mini-navbar .nav li:focus > .nav-second-level {

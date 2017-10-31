@@ -25,7 +25,53 @@ $top-navbar-avatar-size: 50px;
 
 
 //基本样式
+.nav>li>a:focus,
+.nav>li>a:hover,
+.nav>li>a:active,
+.nav>li>a:visited {
+  background: transparent;
+}
+.nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+  background: transparent;
+}
+.top-main-btn {
+  margin-right: 10px;
+  font-family: serif;
+  font-weight: 600;
+  width: 135px;
+  &>a {
+    background-color: $theme-c-primary;
+    color:white;
+  }
+  padding:0 20px;
+  a {
 
+    font-size: $fs-h3 !important;
+    text-overflow: clip;
+    word-wrap: normal;
+    white-space: nowrap;
+
+    &:hover,&:focus, &:active {
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+      color:white !important;
+      background: $theme-c-primary !important;
+    }
+
+  }
+  .dropdown-menu {
+    li {
+      &.active {
+        a{
+          color:white;
+          background-color: $theme-c-primary;
+        }
+
+      }
+    }
+  }
+
+}
 .top-navbar {
   height: $top-navbar-height;
   background-color: $top-navbar-bg;
@@ -54,7 +100,7 @@ $top-navbar-avatar-size: 50px;
       }
     }
     li:last-child {
-      margin-right: 30px;
+
     }
 
     body.body-small .navbar-top-links li:last-child {
@@ -199,9 +245,7 @@ body.mini-navbar .navbar-default .nav > li > .nav-second-level li a {
   padding: 10px 10px 10px 15px;
 }
 
-.canvas-menu.mini-navbar .nav-second-level {
-  background: #293846;
-}
+
 
 .mini-navbar li.active .nav-second-level {
   left: 65px;
